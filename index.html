@@ -398,7 +398,7 @@
                 }
                 h = ((d + Math.floor((13 * (me + 1)) / 5) + rr + Math.floor(rr / 4) - 1) % 7 + 7) % 7;
                 var daysJulian = ["Pátek", "Sobota", "Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek"];
-                return '🗓️ <strong>' + d + '.' + m + '.' + r + '</strong> = <strong>' + daysJulian[h] + '</strong><br><small>' + cal + (isLeapYear(r) ? ' • 📆 přestupný' : '') + '</small>';
+                return '🗓️ <strong>' + d + '.' + m + '.' + r + '</strong> = <strong>' + daysJulian[h] + '</strong><br><small>' + cal + (isLeapYear(r) ? ' •  přestupný' : '') + '</small>';
             } else {
                 cal = "🗓 gregoriánský ";
                 var me, rr;
@@ -413,7 +413,7 @@
                 var j = Math.floor(rr / 100);
                 h = ((d + Math.floor((13 * (me + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - (2 * j)) % 7 + 7) % 7;
                 var daysGregorian = ["Sobota", "Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"];
-                return '🗓️ <strong>' + d + '.' + m + '.' + r + '</strong> = <strong>' + daysGregorian[h] + '</strong><br><small>' + cal + (isLeapYear(r) ? ' • 📆 přestupný' : '') + '</small>';
+                return '🗓️ <strong>' + d + '.' + m + '.' + r + '</strong> = <strong>' + daysGregorian[h] + '</strong><br><small>' + cal + (isLeapYear(r) ? ' •  přestupný' : '') + '</small>';
             }
         } catch (e) {
             return "❌ Chyba ve výpočtu";
