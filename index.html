@@ -424,58 +424,7 @@
         @keyframes spin { 
             to { transform: rotate(360deg); } 
         }
-        
-        /* Virtual keyboard styles */
-/*        .virtual-keyboard { 
-            background: var(--control-bg); 
-            border-radius: 15px; 
-            padding: 15px; 
-            margin-top: 15px; 
-            border: 2px solid var(--control-border);
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
-        }
-      
-        .keyboard-row { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 8px; 
-            justify-content: center;
-        }
-        
-        .keyboard-row:last-child { 
-            margin-bottom: 0; 
-        }
-        
-        .key { 
-            flex: 1;
-            max-width: 60px;
-            height: 48px; 
-            background: var(--button-bg); 
-            color: var(--text-primary); 
-            border: 2px solid var(--control-border); 
-            border-radius: 8px; 
-            font-size: 18px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-            -webkit-user-select: none; 
-            user-select: none;
-        }
-        
-        .key:active { 
-            transform: scale(0.95); 
-            background: rgba(50, 50, 50, 0.8);
-        }
-        
-        .key.wide { 
-            flex: 2; 
-            max-width: 120px;
-        }
-     */   
+                
         /* Two column layout for calculator inputs */
         .input-row { 
             display: flex; 
@@ -586,30 +535,8 @@
             </div>
             <button id="calculateBtn" class="calculate-btn">Vypočítat</button>
 
-<!-- 
-            <div class="virtual-keyboard" id="virtualKeyboard">
-                <div class="keyboard-row">
-                    <div class="key" data-key="1">1</div>
-                    <div class="key" data-key="2">2</div>
-                    <div class="key" data-key="3">3</div>
-                    <div class="key" data-key=".">.</div>
-                    <div class="key" data-key="/">/</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="key" data-key="4">4</div>
-                    <div class="key" data-key="5">5</div>
-                    <div class="key" data-key="6">6</div>
-                    <div class="key" data-key="7">7</div>
-                    <div class="key" data-key="8">8</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="key" data-key="9">9</div>
-                    <div class="key" data-key="0">0</div>
-                    <div class="key" data-key="-">-</div>
-                    <div class="key wide" data-key="backspace">⌫</div>
-                </div>
-            </div>
--->
+
+          
 
             <div class="examples">
                 <h3>💡 Vyzkoušejte:</h3>
@@ -705,27 +632,7 @@
                 <input type="number" id="easterYear" class="number-input" placeholder="2025" min="1" max="9999">
             </div>
             <button id="easterBtn" class="calculate-btn">Vypočítat Velikonoce</button>
-            <div class="virtual-keyboard" id="easterKeyboard">
-                <div class="keyboard-row">
-                    <div class="key" data-key="1">1</div>
-                    <div class="key" data-key="2">2</div>
-                    <div class="key" data-key="3">3</div>
-                    <div class="key" data-key="4">4</div>
-                    <div class="key" data-key="5">5</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="key" data-key="6">6</div>
-                    <div class="key" data-key="7">7</div>
-                    <div class="key" data-key="8">8</div>
-                    <div class="key" data-key="9">9</div>
-                    <div class="key" data-key="0">0</div>
-                </div>
-                <div class="keyboard-row">
-                    <div class="key wide" data-key="backspace">⌫</div>
-                    <div class="key wide" data-key="clear">Clear</div>
-                </div>
-            </div>
-        </div>
+  </div>
 
         <!-- Moon Phase Calculator -->
         <div id="moonPhaseCalculator" class="calculator-view">
@@ -866,12 +773,7 @@
             submenu.classList.add('show');
         }
     }
-    
-    function changeTheme(themeName) {
-        document.body.className = themeName;
-        setStoredTheme(themeName);
-        toggleMenu();
-    }
+
     
     // Calculator switching
 function showCalculator(calculatorType) {
@@ -976,7 +878,8 @@ function changeTheme(themeName) {
             display.innerHTML = '<div class="display-text">' + defaultText + '</div>';
         }
     }
-    
+ 
+/*    
     function showVersion() {
         var display = getCurrentDisplay();
         if (display) {
@@ -985,8 +888,22 @@ function changeTheme(themeName) {
         }
         toggleMenu();
     }
-    
-   
+ */ 
+
+function showVersion() {
+    var display = getCurrentDisplay();
+    if (display) {
+        display.className = 'display result';
+        display.innerHTML = '<div class="display-text">📅 <strong>Kalendářní kalkulátor v2.0</strong><br><small>Nové funkce: Hledač roků • Převod kalendářů<br>Velikonoce • Fáze Měsíce • Kalendářní aritmetika</small></div>';
+    }
+    // Vynucené uzavření menu
+    var dropdown = document.getElementById('menuDropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+        dropdown.style.display = 'none';
+        isMenuOpen = false;
+    }
+}
 
     function fillDate(dateString) {
         var dateInput = document.getElementById('dateInput');
@@ -1539,7 +1456,27 @@ if (type === 'gregorian') {
 
 
 <!-- part 6 -->
-
+// Universal safe tap/click handler initializer
+function addSafeTap(selector, callback) {
+    var items = document.querySelectorAll(selector);
+    for (var i = 0; i < items.length; i++) {
+        (function(item) {
+            let touchMoved = false;
+            item.addEventListener('touchstart', function(e) {
+                touchMoved = false;
+            });
+            item.addEventListener('touchmove', function(e) {
+                touchMoved = true;
+            });
+            item.addEventListener('touchend', function(e) {
+                if (!touchMoved) callback(item, e);
+            });
+            item.addEventListener('click', function(e) {
+                callback(item, e);
+            });
+        })(items[i]);
+    }
+}
 
 // Application initialization
     function initializeApp() {
@@ -1564,37 +1501,20 @@ if (type === 'gregorian') {
                 });
             }
             
-            // Main menu items
-            var dayOfWeekMenu = document.getElementById('dayOfWeekMenu');
-            if (dayOfWeekMenu) {
-                dayOfWeekMenu.addEventListener('click', function() {
-                    showCalculator('dayOfWeek');
-                });
-                dayOfWeekMenu.addEventListener('touchend', function() {
-                    showCalculator('dayOfWeek');
-                });
-            }
+// Hlavní menu položka den v týdnu (ID nebo class podle kódu)
+addSafeTap('#dayOfWeekMenu', function(item) {
+    showCalculator('dayOfWeek');
+});
+
             
- var calculatorsMenu = document.getElementById('calculatorsMenu');
-if (calculatorsMenu) {
-    let touchMoved = false;
-    calculatorsMenu.addEventListener('touchstart', function(e) {
-        touchMoved = false;
-    });
-    calculatorsMenu.addEventListener('touchmove', function(e) {
-        touchMoved = true;
-    });
-    calculatorsMenu.addEventListener('touchend', function(e) {
+// Otevírání submenu kalkulaček (calculatorsMenu, podle ID)
+addSafeTap('#calculatorsMenu', function(item, e) {
+    if (e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!touchMoved) toggleSubmenu('calculatorsSubmenu');
-    });
-    calculatorsMenu.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleSubmenu('calculatorsSubmenu');
-    });
-}
+    }
+    toggleSubmenu('calculatorsSubmenu');
+});
             
             // Calculator menu items
            var calcItems = document.querySelectorAll('[data-calculator]');
@@ -1617,63 +1537,35 @@ for (var i = 0; i < calcItems.length; i++) {
     })(calcItems[i]);
 }
             
-            // Back buttons
-            var backButtons = document.querySelectorAll('[data-back]');
-            for (var i = 0; i < backButtons.length; i++) {
-                (function(button) {
-                    button.addEventListener('click', function() {
-                        showCalculator('dayOfWeek');
-                    });
-                    button.addEventListener('touchend', function() {
-                        showCalculator('dayOfWeek');
-                    });
-                })(backButtons[i]);
-            }
-            
+ // Zpět tlačítka ([data-back])
+addSafeTap('[data-back]', function(item) {
+    showCalculator('dayOfWeek');
+});
+      
             // Version button
-            var versionButton = document.getElementById('versionButton');
-            if (versionButton) {
-                versionButton.addEventListener('click', showVersion);
-                versionButton.addEventListener('touchend', showVersion);
-            }
-            
-            // Theme items
-            var themeItems = document.querySelectorAll('.theme-item');
-            for (var i = 0; i < themeItems.length; i++) {
-                (function(item) {
-                    var theme = item.getAttribute('data-theme') || '';
-                    let touchMoved = false;
+// Tlačítko verze (versionButton)
 
-item.addEventListener('touchstart', function(e) {
-    touchMoved = false;
-});
-item.addEventListener('touchmove', function(e) {
-    touchMoved = true;
-});
-item.addEventListener('touchend', function(e) {
-    if (!touchMoved) {
-        changeTheme(theme);
-    }
-});
-item.addEventListener('click', function() {
+
+addSafeTap('#versionButton', function(item) {
+    showVersion();
+}); 
+
+
+
+
+// Barevná témata (.theme-item)
+addSafeTap('.theme-item', function(item) {
+    var theme = item.getAttribute('data-theme') || '';
     changeTheme(theme);
 });
-                })(themeItems[i]);
-            }
+
             
             // Link items
-            var linkItems = document.querySelectorAll('[data-link]');
-            for (var i = 0; i < linkItems.length; i++) {
-                (function(item) {
-                    var link = item.getAttribute('data-link');
-                    item.addEventListener('click', function() {
-                        openLink(link);
-                    });
-                    item.addEventListener('touchend', function() {
-                        openLink(link);
-                    });
-                })(linkItems[i]);
-            }
+ // Odkazy v menu ([data-link])
+addSafeTap('[data-link]', function(item) {
+    var link = item.getAttribute('data-link');
+    openLink(link);
+});
             
      
             
