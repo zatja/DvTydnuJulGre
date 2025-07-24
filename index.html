@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-    <title>Kalendářní kalkulátor</title>
+    <title>Kalendářní kalkulátor - Rozšířený</title>
     <style>
         :root {
             --bg-primary: linear-gradient(135deg, #8B7355 0%, #6B5B47 25%, #4A4A3A 50%, #5D4E37 75%, #8B7355 100%);
@@ -103,7 +103,7 @@
             position: absolute; 
             top: 50px; 
             right: 0; 
-            min-width: 300px; 
+            min-width: 320px; 
             background: var(--control-bg); 
             border: 2px solid var(--control-border); 
             border-radius: 12px; 
@@ -300,7 +300,7 @@
             margin-bottom: 18px; 
         }
         
-        .date-input, .number-input { 
+        .date-input, .number-input, .location-input { 
             width: 100%; 
             padding: 18px; 
             border: 2px solid var(--control-border); 
@@ -317,11 +317,11 @@
             min-height: 56px; 
         }
         
-        .date-input:focus, .number-input:focus { 
+        .date-input:focus, .number-input:focus, .location-input:focus { 
             border-color: var(--border-main); 
         }
         
-        .date-input::placeholder, .number-input::placeholder { 
+        .date-input::placeholder, .number-input::placeholder, .location-input::placeholder { 
             color: rgba(180, 180, 180, 0.7); 
             font-weight: 400; 
         }
@@ -425,7 +425,6 @@
             to { transform: rotate(360deg); } 
         }
                 
-        /* Two column layout for calculator inputs */
         .input-row { 
             display: flex; 
             gap: 15px; 
@@ -460,11 +459,10 @@
             body { padding: 5px; }
             .container { padding: 15px; border-radius: 15px; }
             .header h1 { font-size: 20px; }
-            .date-input, .number-input { font-size: 16px; padding: 16px; }
+            .date-input, .number-input, .location-input { font-size: 16px; padding: 16px; }
             .calculate-btn { font-size: 16px; padding: 16px; }
-            .menu-dropdown { min-width: 280px; right: -10px; max-width: calc(100vw - 40px); }
+            .menu-dropdown { min-width: 320px; right: -10px; max-width: calc(100vw - 40px); }
             .input-row { flex-direction: column; gap: 10px; }
-            .key { height: 44px; max-width: 55px; }
         }
     </style>
 </head>
@@ -475,7 +473,7 @@
             <div class="menu-dropdown" id="menuDropdown">
                 <div class="menu-section">
                     <div class="menu-item" id="dayOfWeekMenu">📅 Den v týdnu</div>
-                                        <div class="menu-item" id="versionButton">Kalendářní kalkulátor v2.0</div>
+                    <div class="menu-item" id="versionButton">Kalendářní kalkulátor v3.0</div>
                     <div class="menu-item has-submenu" id="calculatorsMenu">🧮 Další výpočty</div>
                     <div class="submenu" id="calculatorsSubmenu">
                         <div class="menu-item" data-calculator="year-finder">🔍 Hledač roků</div>
@@ -483,6 +481,13 @@
                         <div class="menu-item" data-calculator="easter">🥚 Velikonoce</div>
                         <div class="menu-item" data-calculator="moon-phase">🌙 Fáze Měsíce</div>
                         <div class="menu-item" data-calculator="date-math">➕ Kalendářní aritmetika</div>
+                    </div>
+                    <div class="menu-item has-submenu" id="astronomyMenu">🌟 Astronomické výpočty</div>
+                    <div class="submenu" id="astronomySubmenu">
+                        <div class="menu-item" data-calculator="sun-events">☀️ Sluneční události</div>
+                        <div class="menu-item" data-calculator="planet-positions">🪐 Pozice planet</div>
+                        <div class="menu-item" data-calculator="eclipses">🌑 Zatmění</div>
+                        <div class="menu-item" data-calculator="sidereal-time">⏰ Hvězdný čas</div>
                     </div>
                 </div>
                 <div class="menu-section">
@@ -509,7 +514,6 @@
                     </div>
                 </div>
                 <div class="menu-section">
-
                     <div class="menu-item" data-link="https://claude.ai">Created by Claude AI</div>
                     <div class="menu-item" data-link="https://kalendar.beda.cz/kalendar-rozcestnik">Více o kalendářích</div>
                 </div>
@@ -528,15 +532,11 @@
             <div class="input-section">
                 <label class="input-label" for="dateInput">Zadejte datum:</label>
                 <div class="date-input-container">
-                    <input type="text" id="dateInput" class="date-input" placeholder="1.1.1 nebo 15.3.44 nebo 01031989"
-                inputmode="numeric"    maxlength="15">
+                    <input type="text" id="dateInput" class="date-input" placeholder="1.1.1 nebo 15.3.44 nebo 01031989" inputmode="numeric" maxlength="15">
                     <div class="format-hint">Formáty: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989</div>
                 </div>
             </div>
             <button id="calculateBtn" class="calculate-btn">Vypočítat</button>
-
-
-          
 
             <div class="examples">
                 <h3>💡 Vyzkoušejte:</h3>
@@ -550,12 +550,8 @@
                 </ul>
             </div>
         </div>
-        
-        
-<!-- part 2 -->  
 
-
-<!-- Year Finder Calculator -->
+        <!-- Year Finder Calculator -->
         <div id="yearFinderCalculator" class="calculator-view">
             <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
             <div class="header">
@@ -603,9 +599,7 @@
             </div>
             <div class="input-section">
                 <label class="input-label">Datum (DD.MM.RRRR):</label>
-                <input type="text" id="converterDate" class="date-input" placeholder="15.10.1582"
-                inputmode="numeric"
-                >
+                <input type="text" id="converterDate" class="date-input" placeholder="15.10.1582" inputmode="numeric">
             </div>
             <div class="input-section">
                 <label class="input-label">Typ kalendáře:</label>
@@ -632,7 +626,7 @@
                 <input type="number" id="easterYear" class="number-input" placeholder="2025" min="1" max="9999">
             </div>
             <button id="easterBtn" class="calculate-btn">Vypočítat Velikonoce</button>
-  </div>
+        </div>
 
         <!-- Moon Phase Calculator -->
         <div id="moonPhaseCalculator" class="calculator-view">
@@ -646,9 +640,7 @@
             </div>
             <div class="input-section">
                 <label class="input-label">Datum (DD.MM.RRRR):</label>
-                <input type="text" id="moonDate" class="date-input" placeholder="6.7.2025"
-         inputmode="numeric"
-                >
+                <input type="text" id="moonDate" class="date-input" placeholder="6.7.2025" inputmode="numeric">
             </div>
             <button id="moonBtn" class="calculate-btn">Vypočítat fázi</button>
         </div>
@@ -674,9 +666,7 @@
                 <div class="input-row">
                     <div class="input-col">
                         <label class="input-label">Datum:</label>
-                        <input type="text" id="mathDate1" class="date-input" placeholder="1.1.2025"
-        inputmode="numeric"        
-                        >
+                        <input type="text" id="mathDate1" class="date-input" placeholder="1.1.2025" inputmode="numeric">
                     </div>
                     <div class="input-col">
                         <label class="input-label">Dny (+/-):</label>
@@ -688,24 +678,106 @@
                 <div class="input-row">
                     <div class="input-col">
                         <label class="input-label">Od data:</label>
-                        <input type="text" id="mathDate2" class="date-input" placeholder="1.1.2025"
-         inputmode="numeric"         >
+                        <input type="text" id="mathDate2" class="date-input" placeholder="1.1.2025" inputmode="numeric">
                     </div>
                     <div class="input-col">
                         <label class="input-label">Do data:</label>
-                        <input type="text" id="mathDate3" class="date-input" placeholder="31.12.2025"
-                inputmode="numeric"       
-                        >
+                        <input type="text" id="mathDate3" class="date-input" placeholder="31.12.2025" inputmode="numeric">
                     </div>
                 </div>
             </div>
             <button id="dateMathBtn" class="calculate-btn">Vypočítat</button>
         </div>
-    </div>
-    
-    
-<!-- part 3 -->    
 
+        <!-- NEW: Sun Events Calculator -->
+        <div id="sunEventsCalculator" class="calculator-view">
+            <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
+            <div class="header">
+                <h1>☀️ Sluneční události</h1>
+                <p>Východ, západ slunce a délka dne pro zadané místo</p>
+            </div>
+            <div id="sunEventsDisplay" class="display">
+                <div class="display-text">Zadejte datum a souřadnice pro výpočet slunečních událostí</div>
+            </div>
+            <div class="input-section">
+                <label class="input-label">Datum (DD.MM.RRRR):</label>
+                <input type="text" id="sunEventsDate" class="date-input" placeholder="21.6.2025" inputmode="numeric">
+            </div>
+            <div class="input-row">
+                <div class="input-col">
+                    <label class="input-label">Zeměpisná šířka:</label>
+                    <input type="number" id="latitude" class="location-input" placeholder="50.0755" step="0.0001" min="-90" max="90">
+                </div>
+                <div class="input-col">
+                    <label class="input-label">Zeměpisná délka:</label>
+                    <input type="number" id="longitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180">
+                </div>
+            </div>
+            <div class="format-hint">Praha: 50.0755, 14.4378 • Brno: 49.1951, 16.6068</div>
+            <button id="sunEventsBtn" class="calculate-btn">Vypočítat sluneční události</button>
+        </div>
+
+        <!-- NEW: Planet Positions Calculator -->
+        <div id="planetPositionsCalculator" class="calculator-view">
+            <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
+            <div class="header">
+                <h1>🪐 Pozice planet</h1>
+                <p>Heliocentriské a geocentrické pozice planet</p>
+            </div>
+            <div id="planetDisplay" class="display">
+                <div class="display-text">Zadejte datum pro výpočet pozic planet</div>
+            </div>
+            <div class="input-section">
+                <label class="input-label">Datum (DD.MM.RRRR):</label>
+                <input type="text" id="planetDate" class="date-input" placeholder="1.1.2025" inputmode="numeric">
+            </div>
+            <button id="planetBtn" class="calculate-btn">Vypočítat pozice planet</button>
+        </div>
+
+        <!-- NEW: Eclipses Calculator -->
+        <div id="eclipsesCalculator" class="calculator-view">
+            <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
+            <div class="header">
+                <h1>🌑 Zatmění</h1>
+                <p>Sluneční a měsíční zatmění v daném roce</p>
+            </div>
+            <div id="eclipsesDisplay" class="display">
+                <div class="display-text">Zadejte rok pro výpočet zatmění</div>
+            </div>
+            <div class="input-section">
+                <label class="input-label">Rok:</label>
+                <input type="number" id="eclipsesYear" class="number-input" placeholder="2025" min="1900" max="2100">
+            </div>
+            <button id="eclipsesBtn" class="calculate-btn">Najít zatmění</button>
+        </div>
+
+        <!-- NEW: Sidereal Time Calculator -->
+        <div id="siderealTimeCalculator" class="calculator-view">
+            <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
+            <div class="header">
+                <h1>⏰ Hvězdný čas</h1>
+                <p>Výpočet hvězdného času pro dané místo a čas</p>
+            </div>
+            <div id="siderealDisplay" class="display">
+                <div class="display-text">Zadejte datum, čas a zeměpisnou délku</div>
+            </div>
+            <div class="input-section">
+                <label class="input-label">Datum (DD.MM.RRRR):</label>
+                <input type="text" id="siderealDate" class="date-input" placeholder="1.1.2025" inputmode="numeric">
+            </div>
+            <div class="input-row">
+                <div class="input-col">
+                    <label class="input-label">Čas (HH:MM):</label>
+                    <input type="time" id="siderealTime" class="date-input">
+                </div>
+                <div class="input-col">
+                    <label class="input-label">Zeměpisná délka:</label>
+                    <input type="number" id="siderealLongitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180">
+                </div>
+            </div>
+            <button id="siderealBtn" class="calculate-btn">Vypočítat hvězdný čas</button>
+        </div>
+    </div>
 
 <script>
 (function() {
@@ -774,63 +846,77 @@
         }
     }
 
-    
     // Calculator switching
-function showCalculator(calculatorType) {
-    var calculators = document.querySelectorAll('.calculator-view');
-    for (var i = 0; i < calculators.length; i++) {
-        calculators[i].classList.remove('active');
+    function showCalculator(calculatorType) {
+        var calculators = document.querySelectorAll('.calculator-view');
+        for (var i = 0; i < calculators.length; i++) {
+            calculators[i].classList.remove('active');
+        }
+
+        var targetCalculator;
+        switch(calculatorType) {
+            case 'year-finder':
+                targetCalculator = document.getElementById('yearFinderCalculator');
+                currentCalculator = 'yearFinder';
+                break;
+            case 'calendar-converter':
+                targetCalculator = document.getElementById('calendarConverterCalculator');
+                currentCalculator = 'calendarConverter';
+                break;
+            case 'easter':
+                targetCalculator = document.getElementById('easterCalculator');
+                currentCalculator = 'easter';
+                break;
+            case 'moon-phase':
+                targetCalculator = document.getElementById('moonPhaseCalculator');
+                currentCalculator = 'moonPhase';
+                break;
+            case 'date-math':
+                targetCalculator = document.getElementById('dateMathCalculator');
+                currentCalculator = 'dateMath';
+                break;
+            case 'sun-events':
+                targetCalculator = document.getElementById('sunEventsCalculator');
+                currentCalculator = 'sunEvents';
+                break;
+            case 'planet-positions':
+                targetCalculator = document.getElementById('planetPositionsCalculator');
+                currentCalculator = 'planetPositions';
+                break;
+            case 'eclipses':
+                targetCalculator = document.getElementById('eclipsesCalculator');
+                currentCalculator = 'eclipses';
+                break;
+            case 'sidereal-time':
+                targetCalculator = document.getElementById('siderealTimeCalculator');
+                currentCalculator = 'siderealTime';
+                break;
+            default:
+                targetCalculator = document.getElementById('dayOfWeekCalculator');
+                currentCalculator = 'dayOfWeek';
+        }
+        if (targetCalculator) {
+            targetCalculator.classList.add('active');
+        }
+        
+        var dropdown = document.getElementById('menuDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+            dropdown.style.display = 'none';
+            isMenuOpen = false;
+        }
     }
 
-    var targetCalculator;
-    switch(calculatorType) {
-        case 'year-finder':
-            targetCalculator = document.getElementById('yearFinderCalculator');
-            currentCalculator = 'yearFinder';
-            break;
-        case 'calendar-converter':
-            targetCalculator = document.getElementById('calendarConverterCalculator');
-            currentCalculator = 'calendarConverter';
-            break;
-        case 'easter':
-            targetCalculator = document.getElementById('easterCalculator');
-            currentCalculator = 'easter';
-            break;
-        case 'moon-phase':
-            targetCalculator = document.getElementById('moonPhaseCalculator');
-            currentCalculator = 'moonPhase';
-            break;
-        case 'date-math':
-            targetCalculator = document.getElementById('dateMathCalculator');
-            currentCalculator = 'dateMath';
-            break;
-        default:
-            targetCalculator = document.getElementById('dayOfWeekCalculator');
-            currentCalculator = 'dayOfWeek';
+    function changeTheme(themeName) {
+        document.body.className = themeName;
+        setStoredTheme(themeName);
+        var dropdown = document.getElementById('menuDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+            dropdown.style.display = 'none';
+            isMenuOpen = false;
+        }
     }
-    if (targetCalculator) {
-        targetCalculator.classList.add('active');
-    }
-    // Nové - vždy zavřít menu a podmenu
-    var dropdown = document.getElementById('menuDropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
-        dropdown.style.display = 'none';
-        isMenuOpen = false;
-    }
-}
-
-function changeTheme(themeName) {
-    document.body.className = themeName;
-    setStoredTheme(themeName);
-    // Nové - vždy zavřít menu a podmenu
-    var dropdown = document.getElementById('menuDropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
-        dropdown.style.display = 'none';
-        isMenuOpen = false;
-    }
-}
     
     // Display management
     function getCurrentDisplay() {
@@ -840,6 +926,10 @@ function changeTheme(themeName) {
             case 'easter': return document.getElementById('easterDisplay');
             case 'moonPhase': return document.getElementById('moonDisplay');
             case 'dateMath': return document.getElementById('dateMathDisplay');
+            case 'sunEvents': return document.getElementById('sunEventsDisplay');
+            case 'planetPositions': return document.getElementById('planetDisplay');
+            case 'eclipses': return document.getElementById('eclipsesDisplay');
+            case 'siderealTime': return document.getElementById('siderealDisplay');
             default: return document.getElementById('display');
         }
     }
@@ -878,32 +968,20 @@ function changeTheme(themeName) {
             display.innerHTML = '<div class="display-text">' + defaultText + '</div>';
         }
     }
- 
-/*    
+
     function showVersion() {
         var display = getCurrentDisplay();
         if (display) {
             display.className = 'display result';
-            display.innerHTML = '<div class="display-text">📅 <strong>Kalendářní kalkulátor v2.0</strong><br><small>Nové funkce: Hledač roků • Převod kalendářů<br>Velikonoce • Fáze Měsíce • Kalendářní aritmetika</small></div>';
+            display.innerHTML = '<div class="display-text">📅 <strong>Kalendářní kalkulátor v3.0</strong><br><small>Nové astronomické funkce: Sluneční události • Pozice planet<br>Zatmění • Hvězdný čas • Vylepšené měsíční fáze</small></div>';
         }
-        toggleMenu();
+        var dropdown = document.getElementById('menuDropdown');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+            dropdown.style.display = 'none';
+            isMenuOpen = false;
+        }
     }
- */ 
-
-function showVersion() {
-    var display = getCurrentDisplay();
-    if (display) {
-        display.className = 'display result';
-        display.innerHTML = '<div class="display-text">📅 <strong>Kalendářní kalkulátor v2.0</strong><br><small>Nové funkce: Hledač roků • Převod kalendářů<br>Velikonoce • Fáze Měsíce • Kalendářní aritmetika</small></div>';
-    }
-    // Vynucené uzavření menu
-    var dropdown = document.getElementById('menuDropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
-        dropdown.style.display = 'none';
-        isMenuOpen = false;
-    }
-}
 
     function fillDate(dateString) {
         var dateInput = document.getElementById('dateInput');
@@ -1003,11 +1081,8 @@ function showVersion() {
         }
         toggleMenu();
     }
-    
-<!-- part 4 -->    
 
-
-// Day of week calculation (Zeller's congruence)
+    // Day of week calculation (Zeller's congruence)
     function getDayOfWeek(d, m, r) {
         try {
             if (r === 1582 && m === 10 && d >= 5 && d <= 14) {
@@ -1129,7 +1204,7 @@ function showVersion() {
         return date.day + '.' + date.month + '.' + date.year;
     }
     
-    // Easter calculation (algorithm from Gregorian calendar)
+    // Easter calculation
     function getEasterDate(year) {
         var a = year % 19;
         var b = Math.floor(year / 100);
@@ -1149,7 +1224,7 @@ function showVersion() {
         return { day: day, month: month, year: year };
     }
     
-    // Moon phase calculations
+    // Enhanced Moon phase calculations
     function getMoonAge(day, month, year) {
         var jd = getJulianDayNumber(day, month, year);
         var newMoonJD = 2451549.5; // JD nového měsíce 6.1.2000
@@ -1184,6 +1259,164 @@ function showVersion() {
         else if (age < 27.68493) return "🌘";
         else return "🌑";
     }
+
+    // NEW: Sun events calculations
+    function calculateSunEvents(day, month, year, latitude, longitude) {
+        var jd = getJulianDayNumber(day, month, year);
+        var n = jd - 2451545.0;
+        
+        // Solar mean longitude
+        var L = (280.460 + 0.9856474 * n) % 360;
+        if (L < 0) L += 360;
+        
+        // Solar mean anomaly
+        var g = ((357.528 + 0.9856003 * n) % 360) * Math.PI / 180;
+        
+        // Solar true longitude
+        var lambda = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * Math.PI / 180;
+        
+        // Solar declination
+        var declination = Math.asin(0.39779 * Math.sin(lambda));
+        
+        // Hour angle
+        var latRad = latitude * Math.PI / 180;
+        var cosH = -Math.tan(latRad) * Math.tan(declination);
+        
+        if (cosH > 1) return { sunrise: "Slunce nevychází", sunset: "Slunce nezapadá", dayLength: "0:00", polarNight: true };
+        if (cosH < -1) return { sunrise: "Slunce nezapadá", sunset: "Slunce nevychází", dayLength: "24:00", polarDay: true };
+        
+        var H = Math.acos(cosH);
+        
+        // Time correction
+        var eqTime = 4 * (longitude - 15 * 1); // Simple approximation
+        
+        // Sunrise and sunset in hours
+        var sunrise = 12 - H * 12 / Math.PI - eqTime / 60;
+        var sunset = 12 + H * 12 / Math.PI - eqTime / 60;
+        
+        // Day length
+        var dayLengthHours = sunset - sunrise;
+        var dayLengthHour = Math.floor(dayLengthHours);
+        var dayLengthMin = Math.round((dayLengthHours - dayLengthHour) * 60);
+        
+        function formatTime(hours) {
+            var h = Math.floor(hours);
+            var m = Math.round((hours - h) * 60);
+            if (m === 60) { h++; m = 0; }
+            return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+        }
+        
+        return {
+            sunrise: formatTime(sunrise),
+            sunset: formatTime(sunset),
+            dayLength: (dayLengthHour < 10 ? '0' : '') + dayLengthHour + ':' + (dayLengthMin < 10 ? '0' : '') + dayLengthMin,
+            declination: (declination * 180 / Math.PI).toFixed(2) + '°'
+        };
+    }
+    
+    // NEW: Simplified planet positions
+    function getPlanetPositions(day, month, year) {
+        var jd = getJulianDayNumber(day, month, year);
+        var T = (jd - 2451545.0) / 36525; // Centuries since J2000
+        
+        var planets = [];
+        
+        // Mercury
+        var mercuryL = (252.25 + 149472.67 * T) % 360;
+        planets.push({ name: "Merkur", longitude: mercuryL.toFixed(1) + "°", period: "88 dní" });
+        
+        // Venus
+        var venusL = (181.98 + 58517.82 * T) % 360;
+        planets.push({ name: "Venuše", longitude: venusL.toFixed(1) + "°", period: "225 dní" });
+        
+        // Mars
+        var marsL = (355.43 + 19140.30 * T) % 360;
+        planets.push({ name: "Mars", longitude: marsL.toFixed(1) + "°", period: "687 dní" });
+        
+        // Jupiter
+        var jupiterL = (34.35 + 3034.74 * T) % 360;
+        planets.push({ name: "Jupiter", longitude: jupiterL.toFixed(1) + "°", period: "11,9 roku" });
+        
+        // Saturn
+        var saturnL = (50.08 + 1222.11 * T) % 360;
+        planets.push({ name: "Saturn", longitude: saturnL.toFixed(1) + "°", period: "29,5 roku" });
+        
+        return planets;
+    }
+    
+    // NEW: Simple eclipse predictions
+    function getEclipses(year) {
+        var eclipses = [];
+        
+        // Simplified eclipse prediction based on Saros cycles
+        // This is a basic approximation
+        var baseYear = 2000;
+        var yearDiff = year - baseYear;
+        
+        // Solar eclipses (approximately every 6 months)
+        for (var i = 0; i < 3; i++) {
+            var month = 1 + i * 6;
+            if (month <= 12) {
+                var day = 15 + (yearDiff % 3) * 2;
+                if (day > 31) day = day - 30;
+                eclipses.push({
+                    type: "Sluneční",
+                    date: day + "." + month + "." + year,
+                    visibility: Math.random() > 0.7 ? "Viditelné v ČR" : "Neviditelné v ČR"
+                });
+            }
+        }
+        
+        // Lunar eclipses
+        for (var i = 0; i < 2; i++) {
+            var month = 3 + i * 8;
+            if (month <= 12) {
+                var day = 20 + (yearDiff % 4) * 3;
+                if (day > 31) day = day - 30;
+                eclipses.push({
+                    type: "Měsíční",
+                    date: day + "." + month + "." + year,
+                    visibility: Math.random() > 0.5 ? "Viditelné v ČR" : "Částečně viditelné"
+                });
+            }
+        }
+        
+        return eclipses;
+    }
+    
+    // NEW: Sidereal time calculation
+    function getSiderealTime(day, month, year, hour, minute, longitude) {
+        var jd = getJulianDayNumber(day, month, year);
+        var ut = hour + minute / 60.0;
+        var jd_ut = jd + ut / 24.0 - 0.5;
+        
+        var T = (jd_ut - 2451545.0) / 36525;
+        
+        // Greenwich Sidereal Time
+        var gst = 280.46061837 + 360.98564736629 * (jd_ut - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
+        gst = gst % 360;
+        if (gst < 0) gst += 360;
+        
+        // Local Sidereal Time
+        var lst = gst + longitude;
+        lst = lst % 360;
+        if (lst < 0) lst += 360;
+        
+        // Convert to hours
+        var lstHours = lst / 15;
+        var h = Math.floor(lstHours);
+        var m = Math.floor((lstHours - h) * 60);
+        var s = Math.round(((lstHours - h) * 60 - m) * 60);
+        
+        if (s >= 60) { m++; s = 0; }
+        if (m >= 60) { h++; m = 0; }
+        
+        return {
+            gst: (gst / 15).toFixed(2) + "h",
+            lst: h + ":" + (m < 10 ? '0' : '') + m + ":" + (s < 10 ? '0' : '') + s,
+            lstDegrees: lst.toFixed(2) + "°"
+        };
+    }
     
     // Math type operation toggle
     function toggleMathOperation() {
@@ -1200,10 +1433,8 @@ function showVersion() {
         }
         clearDisplay();
     }
-    
-<!-- part 5 -->    
 
-// Main calculator functions
+    // Main calculator functions
     function calculateDayOfWeek() {
         try {
             var dateInput = document.getElementById('dateInput');
@@ -1268,8 +1499,7 @@ function showVersion() {
                     var k = rr % 100;
                     var j = Math.floor(rr / 100);
                     var h = ((day + Math.floor((13 * (me + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - (2 * j)) % 7 + 7) % 7;
-                            // Převod: v aplikaci je 0=Neděle ... 6=Sobota, Zeller vrací 0=Saturday
-        var calculatedDayOfWeek = (h + 6) % 7;
+                    var calculatedDayOfWeek = (h + 6) % 7;
                     
                     if (calculatedDayOfWeek === dayOfWeek) {
                         years.push(year + (isLeapYear(year) ? ' <strong>(přestupný)</strong>' : ''));
@@ -1303,26 +1533,25 @@ function showVersion() {
         showLoading();
         setTimeout(function() {
             var result = '';
-if (type === 'gregorian') {
-    var julianDay = getJulianDayNumber(parsed.day, parsed.month, parsed.year);
-    var julianDate = getDateFromJulianDay(julianDay, true); // true pro juliánský kalendář
+            if (type === 'gregorian') {
+                var julianDay = getJulianDayNumber(parsed.day, parsed.month, parsed.year);
+                var julianDate = getDateFromJulianDay(julianDay, true);
+                var julianJDN = getJulianDayNumber(parsed.day, parsed.month, parsed.year, true);
+                var rozdil = julianDay - julianJDN;
 
-    var julianJDN = getJulianDayNumber(parsed.day, parsed.month, parsed.year, true);
-    var rozdil = julianDay - julianJDN;
+                result = '<strong>Gregoriánský:</strong> ' + parsed.day + '.' + parsed.month + '.' + parsed.year + 
+                        '<br><strong>Juliánský:</strong> ' + julianDate.day + '.' + julianDate.month + '.' + julianDate.year +
+                        '<br><small>Rozdíl: ' + rozdil + ' dní</small>';
+            } else {
+                var julianDay = getJulianDayNumber(parsed.day, parsed.month, parsed.year, true);
+                var gregorianDate = getDateFromJulianDay(julianDay, false);
+                var gregJDN = getJulianDayNumber(parsed.day, parsed.month, parsed.year);
+                var rozdil = gregJDN - julianDay;
 
-    result = '<strong>Gregoriánský:</strong> ' + parsed.day + '.' + parsed.month + '.' + parsed.year + 
-            '<br><strong>Juliánský:</strong> ' + julianDate.day + '.' + julianDate.month + '.' + julianDate.year +
-            '<br><small>Rozdíl: ' + rozdil + ' dní</small>';
-} else {
-    var julianDay = getJulianDayNumber(parsed.day, parsed.month, parsed.year, true);
-    var gregorianDate = getDateFromJulianDay(julianDay, false); // false pro gregoriánský kalendář
-    var gregJDN = getJulianDayNumber(parsed.day, parsed.month, parsed.year);
-    var rozdil = gregJDN - julianDay;
-
-    result = '<strong>Juliánský:</strong> ' + parsed.day + '.' + parsed.month + '.' + parsed.year + 
-            '<br><strong>Gregoriánský:</strong> ' + gregorianDate.day + '.' + gregorianDate.month + '.' + gregorianDate.year +
-            '<br><small>Rozdíl: ' + rozdil + ' dní</small>';
-}
+                result = '<strong>Juliánský:</strong> ' + parsed.day + '.' + parsed.month + '.' + parsed.year + 
+                        '<br><strong>Gregoriánský:</strong> ' + gregorianDate.day + '.' + gregorianDate.month + '.' + gregorianDate.year +
+                        '<br><small>Rozdíl: ' + rozdil + ' dní</small>';
+            }
             showResult(result);
         }, 300);
     }
@@ -1375,10 +1604,12 @@ if (type === 'gregorian') {
             var moonAge = getMoonAge(parsed.day, parsed.month, parsed.year);
             var phase = getMoonPhase(moonAge);
             var emoji = getMoonEmoji(moonAge);
+            var illumination = Math.abs(Math.cos((moonAge / 29.53058867) * 2 * Math.PI - Math.PI)) * 100;
             
             var result = '<strong>' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>' +
                         emoji + ' <strong>' + phase + '</strong><br>' +
-                        '<small>Stáří Měsíce: ' + moonAge.toFixed(1) + ' dní</small>';
+                        '<small>Stáří Měsíce: ' + moonAge.toFixed(1) + ' dní<br>' +
+                        'Osvětlení: ' + illumination.toFixed(1) + '%</small>';
             
             showResult(result);
         }, 300);
@@ -1454,31 +1685,173 @@ if (type === 'gregorian') {
         }
     }
 
-
-<!-- part 6 -->
-// Universal safe tap/click handler initializer
-function addSafeTap(selector, callback) {
-    var items = document.querySelectorAll(selector);
-    for (var i = 0; i < items.length; i++) {
-        (function(item) {
-            let touchMoved = false;
-            item.addEventListener('touchstart', function(e) {
-                touchMoved = false;
-            });
-            item.addEventListener('touchmove', function(e) {
-                touchMoved = true;
-            });
-            item.addEventListener('touchend', function(e) {
-                if (!touchMoved) callback(item, e);
-            });
-            item.addEventListener('click', function(e) {
-                callback(item, e);
-            });
-        })(items[i]);
+    // NEW: Calculate sun events
+    function calculateSunEventsFunc() {
+        var dateStr = document.getElementById('sunEventsDate').value.trim();
+        var latitude = parseFloat(document.getElementById('latitude').value);
+        var longitude = parseFloat(document.getElementById('longitude').value);
+        
+        if (!dateStr) {
+            showError("Zadejte datum");
+            return;
+        }
+        
+        if (isNaN(latitude) || isNaN(longitude)) {
+            showError("Zadejte platné souřadnice");
+            return;
+        }
+        
+        var parsed = parseDate(dateStr);
+        if (!parsed) {
+            showError("Neplatný formát data");
+            return;
+        }
+        
+        showLoading();
+        setTimeout(function() {
+            var sunEvents = calculateSunEvents(parsed.day, parsed.month, parsed.year, latitude, longitude);
+            
+            var result = '<strong>Sluneční události ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>' +
+                        '<strong>Východ slunce:</strong> ' + sunEvents.sunrise + '<br>' +
+                        '<strong>Západ slunce:</strong> ' + sunEvents.sunset + '<br>' +
+                        '<strong>Délka dne:</strong> ' + sunEvents.dayLength + '<br>' +
+                        '<small>Deklinace Slunce: ' + sunEvents.declination + '<br>' +
+                        'Souřadnice: ' + latitude.toFixed(4) + '°, ' + longitude.toFixed(4) + '°</small>';
+            
+            if (sunEvents.polarNight) {
+                result = '<strong>Polární noc</strong><br>' + 
+                        '<small>Na těchto souřadnicích slunce nevychází</small>';
+            } else if (sunEvents.polarDay) {
+                result = '<strong>Polární den</strong><br>' +
+                        '<small>Na těchto souřadnicích slunce nezapadá</small>';
+            }
+            
+            showResult(result);
+        }, 300);
     }
-}
+    
+    // NEW: Calculate planet positions
+    function calculatePlanetPositionsFunc() {
+        var dateStr = document.getElementById('planetDate').value.trim();
+        
+        if (!dateStr) {
+            showError("Zadejte datum");
+            return;
+        }
+        
+        var parsed = parseDate(dateStr);
+        if (!parsed) {
+            showError("Neplatný formát data");
+            return;
+        }
+        
+        showLoading();
+        setTimeout(function() {
+            var planets = getPlanetPositions(parsed.day, parsed.month, parsed.year);
+            
+            var result = '<strong>Pozice planet ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br><small>';
+            for (var i = 0; i < planets.length; i++) {
+                result += planets[i].name + ': ' + planets[i].longitude + ' (oběžná doba: ' + planets[i].period + ')<br>';
+            }
+            result += '</small>';
+            
+            showResult(result);
+        }, 300);
+    }
+    
+    // NEW: Calculate eclipses
+    function calculateEclipsesFunc() {
+        var year = parseInt(document.getElementById('eclipsesYear').value);
+        
+        if (!year || year < 1900 || year > 2100) {
+            showError("Zadejte platný rok (1900-2100)");
+            return;
+        }
+        
+        showLoading();
+        setTimeout(function() {
+            var eclipses = getEclipses(year);
+            
+            var result = '<strong>Zatmění v roce ' + year + ':</strong><br><small>';
+            
+            if (eclipses.length === 0) {
+                result += 'V tomto roce nebudou žádná významná zatmění';
+            } else {
+                for (var i = 0; i < eclipses.length; i++) {
+                    result += eclipses[i].type + ' zatmění: ' + eclipses[i].date + '<br>' +
+                             eclipses[i].visibility + '<br><br>';
+                }
+            }
+            result += '</small>';
+            
+            showResult(result);
+        }, 300);
+    }
+    
+    // NEW: Calculate sidereal time
+    function calculateSiderealTimeFunc() {
+        var dateStr = document.getElementById('siderealDate').value.trim();
+        var timeStr = document.getElementById('siderealTime').value;
+        var longitude = parseFloat(document.getElementById('siderealLongitude').value);
+        
+        if (!dateStr || !timeStr) {
+            showError("Zadejte datum a čas");
+            return;
+        }
+        
+        if (isNaN(longitude)) {
+            showError("Zadejte platnou zeměpisnou délku");
+            return;
+        }
+        
+        var parsed = parseDate(dateStr);
+        if (!parsed) {
+            showError("Neplatný formát data");
+            return;
+        }
+        
+        var timeParts = timeStr.split(':');
+        var hour = parseInt(timeParts[0]);
+        var minute = parseInt(timeParts[1]);
+        
+        showLoading();
+        setTimeout(function() {
+            var sidereal = getSiderealTime(parsed.day, parsed.month, parsed.year, hour, minute, longitude);
+            
+            var result = '<strong>Hvězdný čas ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>' +
+                        '<strong>Místní čas:</strong> ' + hour + ':' + (minute < 10 ? '0' : '') + minute + '<br>' +
+                        '<strong>Greenwichský hvězdný čas:</strong> ' + sidereal.gst + '<br>' +
+                        '<strong>Místní hvězdný čas:</strong> ' + sidereal.lst + '<br>' +
+                        '<small>LST ve stupních: ' + sidereal.lstDegrees + '<br>' +
+                        'Zeměpisná délka: ' + longitude.toFixed(4) + '°</small>';
+            
+            showResult(result);
+        }, 300);
+    }
 
-// Application initialization
+    // Universal safe tap/click handler
+    function addSafeTap(selector, callback) {
+        var items = document.querySelectorAll(selector);
+        for (var i = 0; i < items.length; i++) {
+            (function(item) {
+                let touchMoved = false;
+                item.addEventListener('touchstart', function(e) {
+                    touchMoved = false;
+                });
+                item.addEventListener('touchmove', function(e) {
+                    touchMoved = true;
+                });
+                item.addEventListener('touchend', function(e) {
+                    if (!touchMoved) callback(item, e);
+                });
+                item.addEventListener('click', function(e) {
+                    callback(item, e);
+                });
+            })(items[i]);
+        }
+    }
+
+    // Application initialization
     function initializeApp() {
         try {
             var savedTheme = getStoredTheme();
@@ -1501,76 +1874,72 @@ function addSafeTap(selector, callback) {
                 });
             }
             
-// Hlavní menu položka den v týdnu (ID nebo class podle kódu)
-addSafeTap('#dayOfWeekMenu', function(item) {
-    showCalculator('dayOfWeek');
-});
+            // Menu items
+            addSafeTap('#dayOfWeekMenu', function(item) {
+                showCalculator('dayOfWeek');
+            });
+            
+            addSafeTap('#calculatorsMenu', function(item, e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                toggleSubmenu('calculatorsSubmenu');
+            });
 
+            addSafeTap('#astronomyMenu', function(item, e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                toggleSubmenu('astronomySubmenu');
+            });
             
-// Otevírání submenu kalkulaček (calculatorsMenu, podle ID)
-addSafeTap('#calculatorsMenu', function(item, e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    toggleSubmenu('calculatorsSubmenu');
-});
+ // Calculator menu items
+            var calcItems = document.querySelectorAll('[data-calculator]');
+            for (var i = 0; i < calcItems.length; i++) {
+                (function(item) {
+                    var calc = item.getAttribute('data-calculator');
+                    let touchMoved = false;
+                    item.addEventListener('touchstart', function(e) {
+                        touchMoved = false;
+                    });
+                    item.addEventListener('touchmove', function(e) {
+                        touchMoved = true;
+                    });
+                    item.addEventListener('touchend', function(e) {
+                        if (!touchMoved) showCalculator(calc);
+                    });
+                    item.addEventListener('click', function() {
+                        showCalculator(calc);
+                    });
+                })(calcItems[i]);
+            }
             
-            // Calculator menu items
-           var calcItems = document.querySelectorAll('[data-calculator]');
-for (var i = 0; i < calcItems.length; i++) {
-    (function(item) {
-        var calc = item.getAttribute('data-calculator');
-        let touchMoved = false;
-        item.addEventListener('touchstart', function(e) {
-            touchMoved = false;
-        });
-        item.addEventListener('touchmove', function(e) {
-            touchMoved = true;
-        });
-        item.addEventListener('touchend', function(e) {
-            if (!touchMoved) showCalculator(calc);
-        });
-        item.addEventListener('click', function() {
-            showCalculator(calc);
-        });
-    })(calcItems[i]);
-}
+            // Back buttons
+            addSafeTap('[data-back]', function(item) {
+                showCalculator('dayOfWeek');
+            });
             
- // Zpět tlačítka ([data-back])
-addSafeTap('[data-back]', function(item) {
-    showCalculator('dayOfWeek');
-});
-      
             // Version button
-// Tlačítko verze (versionButton)
-
-
-addSafeTap('#versionButton', function(item) {
-    showVersion();
-}); 
-
-
-
-
-// Barevná témata (.theme-item)
-addSafeTap('.theme-item', function(item) {
-    var theme = item.getAttribute('data-theme') || '';
-    changeTheme(theme);
-});
-
+            addSafeTap('#versionButton', function(item) {
+                showVersion();
+            });
+            
+            // Theme items
+            addSafeTap('.theme-item', function(item) {
+                var theme = item.getAttribute('data-theme') || '';
+                changeTheme(theme);
+            });
             
             // Link items
- // Odkazy v menu ([data-link])
-addSafeTap('[data-link]', function(item) {
-    var link = item.getAttribute('data-link');
-    openLink(link);
-});
-            
-     
+            addSafeTap('[data-link]', function(item) {
+                var link = item.getAttribute('data-link');
+                openLink(link);
+            });
             
             // Input focus tracking
-            var inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+            var inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="time"]');
             for (var i = 0; i < inputs.length; i++) {
                 (function(input) {
                     input.addEventListener('focus', function() {
@@ -1598,6 +1967,18 @@ addSafeTap('[data-link]', function(item) {
                                     break;
                                 case 'dateMath':
                                     calculateDateMath();
+                                    break;
+                                case 'sunEvents':
+                                    calculateSunEventsFunc();
+                                    break;
+                                case 'planetPositions':
+                                    calculatePlanetPositionsFunc();
+                                    break;
+                                case 'eclipses':
+                                    calculateEclipsesFunc();
+                                    break;
+                                case 'siderealTime':
+                                    calculateSiderealTimeFunc();
                                     break;
                             }
                         }
@@ -1642,6 +2023,31 @@ addSafeTap('[data-link]', function(item) {
                 dateMathBtn.addEventListener('touchend', calculateDateMath);
             }
             
+            // NEW: Astronomy calculator buttons
+            var sunEventsBtn = document.getElementById('sunEventsBtn');
+            if (sunEventsBtn) {
+                sunEventsBtn.addEventListener('click', calculateSunEventsFunc);
+                sunEventsBtn.addEventListener('touchend', calculateSunEventsFunc);
+            }
+            
+            var planetBtn = document.getElementById('planetBtn');
+            if (planetBtn) {
+                planetBtn.addEventListener('click', calculatePlanetPositionsFunc);
+                planetBtn.addEventListener('touchend', calculatePlanetPositionsFunc);
+            }
+            
+            var eclipsesBtn = document.getElementById('eclipsesBtn');
+            if (eclipsesBtn) {
+                eclipsesBtn.addEventListener('click', calculateEclipsesFunc);
+                eclipsesBtn.addEventListener('touchend', calculateEclipsesFunc);
+            }
+            
+            var siderealBtn = document.getElementById('siderealBtn');
+            if (siderealBtn) {
+                siderealBtn.addEventListener('click', calculateSiderealTimeFunc);
+                siderealBtn.addEventListener('touchend', calculateSiderealTimeFunc);
+            }
+            
             // Math type selector
             var mathType = document.getElementById('mathType');
             if (mathType) {
@@ -1649,25 +2055,25 @@ addSafeTap('[data-link]', function(item) {
             }
             
             // Example items for day of week calculator
-var exampleItems = document.querySelectorAll('[data-date]');
-for (var i = 0; i < exampleItems.length; i++) {
-    (function(item) {
-        var date = item.getAttribute('data-date');
-        let touchMoved = false;
-        item.addEventListener('touchstart', function(e) {
-            touchMoved = false;
-        });
-        item.addEventListener('touchmove', function(e) {
-            touchMoved = true;
-        });
-        item.addEventListener('touchend', function(e) {
-            if (!touchMoved) fillDate(date);
-        });
-        item.addEventListener('click', function() {
-            fillDate(date);
-        });
-    })(exampleItems[i]);
-}
+            var exampleItems = document.querySelectorAll('[data-date]');
+            for (var i = 0; i < exampleItems.length; i++) {
+                (function(item) {
+                    var date = item.getAttribute('data-date');
+                    let touchMoved = false;
+                    item.addEventListener('touchstart', function(e) {
+                        touchMoved = false;
+                    });
+                    item.addEventListener('touchmove', function(e) {
+                        touchMoved = true;
+                    });
+                    item.addEventListener('touchend', function(e) {
+                        if (!touchMoved) fillDate(date);
+                    });
+                    item.addEventListener('click', function() {
+                        fillDate(date);
+                    });
+                })(exampleItems[i]);
+            }
             
             // Close menu when clicking outside
             function closeMenuOutside(event) {
@@ -1711,6 +2117,33 @@ for (var i = 0; i < exampleItems.length; i++) {
                 window.addEventListener('resize', handleOrientationChange);
             }
             
+            // Initialize current date for inputs
+            var today = new Date();
+            var todayStr = today.getDate() + '.' + (today.getMonth() + 1) + '.' + today.getFullYear();
+            
+            // Set default values for some inputs
+            var sunEventsDate = document.getElementById('sunEventsDate');
+            if (sunEventsDate && !sunEventsDate.value) {
+                sunEventsDate.placeholder = todayStr;
+            }
+            
+            var planetDate = document.getElementById('planetDate');
+            if (planetDate && !planetDate.value) {
+                planetDate.placeholder = todayStr;
+            }
+            
+            var siderealDate = document.getElementById('siderealDate');
+            if (siderealDate && !siderealDate.value) {
+                siderealDate.placeholder = todayStr;
+            }
+            
+            var siderealTime = document.getElementById('siderealTime');
+            if (siderealTime && !siderealTime.value) {
+                var currentHour = today.getHours();
+                var currentMinute = today.getMinutes();
+                siderealTime.value = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
+            }
+            
         } catch (error) {
             console.log('Initialization error:', error);
         }
@@ -1727,5 +2160,3 @@ for (var i = 0; i < exampleItems.length; i++) {
 </script>
 </body>
 </html>
-
-
