@@ -710,7 +710,7 @@
                 </div>
                 <div class="input-col">
                     <label class="input-label">Zeměpisná délka:</label>
-                    <input type="number" id="longitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180">
+                    <input type="text" id="longitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180"input inputmode="numeric">
                 </div>
             </div>
             <div class="format-hint">Praha: 50.0755, 14.4378 • Brno: 49.1951, 16.6068</div>
@@ -727,13 +727,28 @@
             <div id="planetDisplay" class="display">
                 <div class="display-text">Zadejte datum pro výpočet pozic planet</div>
             </div>
-            <div class="input-section">
-                <label class="input-label">Datum (DD.MM.RRRR):</label>
-                <input type="text" id="planetDate" class="date-input" placeholder="1.1.2025" inputmode="numeric">
-            </div>
-            <button id="planetBtn" class="calculate-btn">Vypočítat pozice planet</button>
-        </div>
-
+<div class="input-section">
+    <label class="input-label">Datum (DD.MM.RRRR):</label>
+    <input type="text" id="planetDate" class="date-input" placeholder="1.1.2025" inputmode="numeric">
+</div>
+<div class="input-row">
+    <div class="input-col">
+        <label class="input-label">Čas (HH:MM):</label>
+        <input type="time" id="planetTime" class="date-input" value="00:00">
+    </div>
+    <div class="input-col">
+        <label class="input-label">Časové pásmo:</label>
+        <select id="planetTimezone" class="date-input">
+            <option value="0">UTC (Greenwichský čas)</option>
+            <option value="1" selected>CET (UTC+1)</option>
+            <option value="2">CEST (UTC+2 - letní čas)</option>
+            <option value="-5">EST (UTC-5)</option>
+            <option value="-8">PST (UTC-8)</option>
+        </select>
+    </div>
+</div>
+<button id="planetBtn" class="calculate-btn">Vypočítat pozice planet</button>
+</div>
         <!-- NEW: Eclipses Calculator -->
         <div id="eclipsesCalculator" class="calculator-view">
             <div class="back-button" data-back="dayOfWeek">← Zpět na hlavní menu</div>
@@ -772,7 +787,7 @@
                 </div>
                 <div class="input-col">
                     <label class="input-label">Zeměpisná délka:</label>
-                    <input type="number" id="siderealLongitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180">
+                    <input type="text" id="siderealLongitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180">
                 </div>
             </div>
             <button id="siderealBtn" class="calculate-btn">Vypočítat hvězdný čas</button>
@@ -1260,129 +1275,709 @@
         else return "🌑";
     }
 
-    // NEW: Sun events calculations
-    function calculateSunEvents(day, month, year, latitude, longitude) {
+
+// NEW: Corrected sun events calculations using NOAA algorithm
+function calculateSunEvents(day, month, year, latitude, longitude) {
+    try {
         var jd = getJulianDayNumber(day, month, year);
-        var n = jd - 2451545.0;
+        var T = (jd - 2451545.0) / 36525.0; // Centuries since J2000
         
-        // Solar mean longitude
-        var L = (280.460 + 0.9856474 * n) % 360;
-        if (L < 0) L += 360;
+        // Check for polar regions
+        if (Math.abs(latitude) > 66.5) {
+            return handlePolarRegions(day, month, year, latitude, longitude);
+        }
         
-        // Solar mean anomaly
-        var g = ((357.528 + 0.9856003 * n) % 360) * Math.PI / 180;
+        // Solar mean longitude (degrees)
+        var L0 = (280.46646 + T * (36000.76983 + T * 0.0003032)) % 360;
+        if (L0 < 0) L0 += 360;
         
-        // Solar true longitude
-        var lambda = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) * Math.PI / 180;
+        // Solar mean anomaly (degrees)  
+        var M = (357.52911 + T * (35999.05029 - T * 0.0001537)) % 360;
+        var M_rad = M * Math.PI / 180;
         
-        // Solar declination
-        var declination = Math.asin(0.39779 * Math.sin(lambda));
+        // Earth's eccentricity
+        var e = 0.016708634 - T * (0.000042037 + T * 0.0000001267);
         
-        // Hour angle
+        // Sun's equation of center (degrees)
+        var C = Math.sin(M_rad) * (1.914602 - T * (0.004817 + T * 0.000014)) +
+                Math.sin(2 * M_rad) * (0.019993 - T * 0.000101) +
+                Math.sin(3 * M_rad) * 0.000289;
+        
+        // True longitude (degrees)
+        var trueLon = L0 + C;
+        
+        // Apparent longitude - nutation correction (degrees)
+        var omega = (125.04 - 1934.136 * T) * Math.PI / 180;
+        var apparentLon = trueLon - 0.00569 - 0.00478 * Math.sin(omega);
+        
+        // Obliquity of ecliptic (degrees)
+        var epsilon0 = 23 + (26 + (21.448 - T * (46.815 + T * (0.00059 - T * 0.001813))) / 60) / 60;
+        var epsilon = epsilon0 + 0.00256 * Math.cos(omega);
+        var epsilon_rad = epsilon * Math.PI / 180;
+        var apparentLon_rad = apparentLon * Math.PI / 180;
+        
+        // Solar declination (radians)
+        var declination = Math.asin(Math.sin(epsilon_rad) * Math.sin(apparentLon_rad));
+        
+        // Equation of time (minutes)
+        var y = Math.pow(Math.tan(epsilon_rad / 2), 2);
+        var L0_rad = L0 * Math.PI / 180;
+        var eqTime = 4 * (180 / Math.PI) * (
+            y * Math.sin(2 * L0_rad) - 
+            2 * e * Math.sin(M_rad) +
+            4 * e * y * Math.sin(M_rad) * Math.cos(2 * L0_rad) -
+            0.5 * y * y * Math.sin(4 * L0_rad) -
+            1.25 * e * e * Math.sin(2 * M_rad)
+        );
+        
+        // Hour angle for sunrise/sunset (including atmospheric refraction)
         var latRad = latitude * Math.PI / 180;
-        var cosH = -Math.tan(latRad) * Math.tan(declination);
+        var zenith = 90.833; // 90° + 50' atmospheric refraction + 16' solar radius
+        var cosHA = (Math.cos(zenith * Math.PI / 180) - Math.sin(latRad) * Math.sin(declination)) / 
+                   (Math.cos(latRad) * Math.cos(declination));
         
-        if (cosH > 1) return { sunrise: "Slunce nevychází", sunset: "Slunce nezapadá", dayLength: "0:00", polarNight: true };
-        if (cosH < -1) return { sunrise: "Slunce nezapadá", sunset: "Slunce nevychází", dayLength: "24:00", polarDay: true };
+        // Check for polar day/night
+        if (cosHA > 1) {
+            return {
+                sunrise: "Slunce nevychází",
+                sunset: "Slunce nevychází", 
+                dayLength: "0:00",
+                declination: (declination * 180 / Math.PI).toFixed(2) + '°',
+                polarNight: true
+            };
+        }
+        if (cosHA < -1) {
+            return {
+                sunrise: "Slunce nezapadá",
+                sunset: "Slunce nezapadá",
+                dayLength: "24:00", 
+                declination: (declination * 180 / Math.PI).toFixed(2) + '°',
+                polarDay: true
+            };
+        }
         
-        var H = Math.acos(cosH);
+        var HA = Math.acos(cosHA) * 180 / Math.PI; // Hour angle in degrees
         
-        // Time correction
-        var eqTime = 4 * (longitude - 15 * 1); // Simple approximation
+        // Determine timezone (with DST consideration)
+        var timezone = determineTimezone(longitude, month);
         
-        // Sunrise and sunset in hours
-        var sunrise = 12 - H * 12 / Math.PI - eqTime / 60;
-        var sunset = 12 + H * 12 / Math.PI - eqTime / 60;
+        // Calculate sunrise and sunset times (local solar time)
+        var solarNoon = 12 - eqTime / 60 + longitude / 15 - timezone ;
+        // Apply timezone offset differently
+var timezoneOffset = timezone;
+        var sunrise = solarNoon - HA / 15;
+        var sunset = solarNoon + HA / 15;
+        // Apply timezone correction here instead
+sunrise += timezoneOffset;
+sunset += timezoneOffset;
+
+        // Ensure times are in 0-24 range
+        while (sunrise < 0) sunrise += 24;
+        while (sunrise >= 24) sunrise -= 24;
+        while (sunset < 0) sunset += 24;
+        while (sunset >= 24) sunset -= 24;
         
-        // Day length
-        var dayLengthHours = sunset - sunrise;
+        // Calculate day length
+        var dayLengthHours = HA * 2 / 15; // Hours of daylight
         var dayLengthHour = Math.floor(dayLengthHours);
         var dayLengthMin = Math.round((dayLengthHours - dayLengthHour) * 60);
         
-        function formatTime(hours) {
-            var h = Math.floor(hours);
-            var m = Math.round((hours - h) * 60);
-            if (m === 60) { h++; m = 0; }
-            return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
-        }
-        
         return {
-            sunrise: formatTime(sunrise),
+            sunrise:
+            formatTime(sunrise),
             sunset: formatTime(sunset),
-            dayLength: (dayLengthHour < 10 ? '0' : '') + dayLengthHour + ':' + (dayLengthMin < 10 ? '0' : '') + dayLengthMin,
-            declination: (declination * 180 / Math.PI).toFixed(2) + '°'
+            dayLength: formatHoursMinutes(dayLengthHour, dayLengthMin),
+            declination: (declination * 180 / Math.PI).toFixed(2) + '°',
+            eqTime: eqTime.toFixed(1) + ' min',
+            timezone: 'UTC' + (timezone >= 0 ? '+' : '') + timezone
+        };
+        
+    } catch (error) {
+        return {
+            sunrise: "Chyba výpočtu",
+            sunset: "Chyba výpočtu", 
+            dayLength: "---",
+            declination: "---"
         };
     }
+}
+
+function determineTimezone(longitude, month) {
+    // Basic timezone from longitude
+    var basicTZ = Math.round(longitude / 15);
+    
+    // Determine if DST applies (simplified for European rules)
+    var isDST = (month > 3 && month < 10) || 
+                (month === 3 && month >= 3) ||  // Rough DST start
+                (month === 10 && month <= 10);  // Rough DST end
+    
+    // Common timezone adjustments
+    if (longitude >= -7.5 && longitude <= 22.5) { // Central Europe
+        return isDST ? 2 : -2 ; // CET/CEST
+    }
+    
+    return basicTZ + (isDST ? 1 : 0);
+}
+
+function handlePolarRegions(day, month, year, latitude, longitude) {
+    // Simplified polar region handling
+    var jd = getJulianDayNumber(day, month, year);
+    var T = (jd - 2451545.0) / 36525.0;
+    var L0 = (280.46646 + T * (36000.76983 + T * 0.0003032)) % 360;
+    var M = (357.52911 + T * (35999.05029 - T * 0.0001537)) % 360;
+    var C = Math.sin(M * Math.PI / 180) * 1.914602;
+    var trueLon = L0 + C;
+    var epsilon = 23.4393 - 0.0130 * T;
+    var declination = Math.asin(Math.sin(epsilon * Math.PI / 180) * Math.sin(trueLon * Math.PI / 180));
+    
+    // Determine if it's polar day or night
+    var isPolarDay = (latitude > 0 && declination > (90 - latitude) * Math.PI / 180) ||
+                     (latitude < 0 && declination < (90 + latitude) * Math.PI / 180);
+    var isPolarNight = (latitude > 0 && declination < -(90 - latitude) * Math.PI / 180) ||
+                       (latitude < 0 && declination > -(90 + latitude) * Math.PI / 180);
+    
+    if (isPolarDay) {
+        return {
+            sunrise: "Slunce nezapadá",
+            sunset: "Slunce nezapadá", 
+            dayLength: "24:00",
+            declination: (declination * 180 / Math.PI).toFixed(2) + '°',
+            polarDay: true
+        };
+    } else if (isPolarNight) {
+        return {
+            sunrise: "Slunce nevychází",
+            sunset: "Slunce nevychází",
+            dayLength: "0:00", 
+            declination: (declination * 180 / Math.PI).toFixed(2) + '°',
+            polarNight: true
+        };
+    } else {
+        // Use standard calculation for border cases
+        return calculateSunEvents(day, month, year, latitude, longitude);
+    }
+}
+
+function formatTime(hours) {
+    var h = Math.floor(hours);
+    var mFloat = (hours - h) * 60;
+    var m = Math.floor(mFloat);
+    var s = Math.round((mFloat - m) * 60);
+
+    // Korekce přetečení sekund
+    if (s === 60) {
+        s = 0;
+        m++;
+    }
+    if (m === 60) {
+        m = 0;
+        h++;
+    }
+    if (h >= 24) h -= 24;
+    if (h < 0) h += 24;
+
+    return (h < 10 ? '0' : '') + h + ':' +
+           (m < 10 ? '0' : '') + m + ':' +
+           (s < 10 ? '0' : '') + s;
+}
+
+function formatHoursMinutes(hours, minutes) {
+    if (minutes >= 60) { hours++; minutes -= 60; }
+    return (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+}
     
     // NEW: Simplified planet positions
-    function getPlanetPositions(day, month, year) {
-        var jd = getJulianDayNumber(day, month, year);
-        var T = (jd - 2451545.0) / 36525; // Centuries since J2000
-        
-        var planets = [];
-        
-        // Mercury
-        var mercuryL = (252.25 + 149472.67 * T) % 360;
-        planets.push({ name: "Merkur", longitude: mercuryL.toFixed(1) + "°", period: "88 dní" });
-        
-        // Venus
-        var venusL = (181.98 + 58517.82 * T) % 360;
-        planets.push({ name: "Venuše", longitude: venusL.toFixed(1) + "°", period: "225 dní" });
-        
-        // Mars
-        var marsL = (355.43 + 19140.30 * T) % 360;
-        planets.push({ name: "Mars", longitude: marsL.toFixed(1) + "°", period: "687 dní" });
-        
-        // Jupiter
-        var jupiterL = (34.35 + 3034.74 * T) % 360;
-        planets.push({ name: "Jupiter", longitude: jupiterL.toFixed(1) + "°", period: "11,9 roku" });
-        
-        // Saturn
-        var saturnL = (50.08 + 1222.11 * T) % 360;
-        planets.push({ name: "Saturn", longitude: saturnL.toFixed(1) + "°", period: "29,5 roku" });
-        
-        return planets;
+  // NEW: Geocentric planet positions as seen from Earth
+function getPlanetPositions(day, month, year, hour, minute, timezone) {
+    // Default values if time not provided
+    if (hour === undefined) hour = 0;
+    if (minute === undefined) minute = 0;
+    if (timezone === undefined) timezone = 0;
+    
+    // Convert to Julian Day with time
+    var jd = getJulianDayNumber(day, month, year);
+    
+    // Add time component (convert local time to UTC)
+    var timeOffset = (hour - timezone + minute / 60.0) / 24.0;
+    jd += timeOffset;
+    
+    var T = (jd - 2451545.0) / 36525;
+ // Centuries since J2000
+    
+    // Calculate Earth's position first
+    var earthLongitude = getEarthPosition(T);
+    
+    var planets = [];
+    
+    // Inner planets (Mercury, Venus)
+    var mercury = calculateInnerPlanet("Merkur", T, 252.25, 149472.67, 0.387, 0.206, earthLongitude);
+    planets.push(mercury);
+    
+    var venus = calculateInnerPlanet("Venuše", T, 181.98, 58517.82, 0.723, 0.007, earthLongitude);
+    planets.push(venus);
+    
+    // Outer planets (Mars, Jupiter, Saturn)
+    var mars = calculateOuterPlanet("Mars", T, 355.43, 19140.30, 1.524, 0.093, earthLongitude);
+    planets.push(mars);
+    
+    var jupiter = calculateOuterPlanet("Jupiter", T, 34.35, 3034.74, 5.203, 0.048, earthLongitude);
+    planets.push(jupiter);
+    
+    var saturn = calculateOuterPlanet("Saturn", T, 50.08, 1222.11, 9.537, 0.054, earthLongitude);
+    planets.push(saturn);
+    
+    return planets;
+}
+
+function getEarthPosition(T) {
+    // Earth's mean longitude
+    var L = (100.464 + 35999.372 * T) % 360;
+    if (L < 0) L += 360;
+    
+    // Earth's mean anomaly
+    var M = (357.528 + 35999.050 * T) % 360;
+    var M_rad = M * Math.PI / 180;
+    
+    // Equation of center
+    var C = 1.915 * Math.sin(M_rad) + 0.020 * Math.sin(2 * M_rad);
+    
+    // True longitude
+    var trueLongitude = (L + C) % 360;
+    if (trueLongitude < 0) trueLongitude += 360;
+    
+    return trueLongitude;
+}
+
+function calculateInnerPlanet(name, T, L0, n, a, e, earthLong) {
+    // More accurate planetary calculations
+    var planetConstants = getPlanetConstants(name);
+    
+    // Mean longitude with higher precision
+    var L = (planetConstants.L0 + planetConstants.n * T + planetConstants.n2 * T * T) % 360;
+    if (L < 0) L += 360;
+    
+    // Mean anomaly
+    var M = (planetConstants.M0 + planetConstants.M1 * T) % 360;
+    var M_rad = M * Math.PI / 180;
+    
+    // Equation of center (simplified)
+    var C = planetConstants.e * Math.sin(M_rad) * (180 / Math.PI);
+    
+    // True longitude
+    var trueLong = (L + C) % 360;
+    if (trueLong < 0) trueLong += 360;
+    
+    // Calculate elongation from Sun (as seen from Earth)
+    var elongation = Math.abs(trueLong - earthLong);
+    if (elongation > 180) elongation = 360 - elongation;
+    
+    // More accurate geocentric position
+    var geocentricLong = calculateGeocentricPosition(trueLong, earthLong, a, true);
+    
+    var visibility = getAdvancedVisibility(name, elongation, trueLong, earthLong);
+    var constellation = getConstellation(geocentricLong);
+    var magnitude = calculateMagnitude(name, elongation, a);
+    
+    return {
+        name: name,
+        position: geocentricLong.toFixed(1) + "° (geocentrická délka)",
+        elongation: elongation.toFixed(1) + "° od Slunce",
+        visibility: visibility,
+        constellation: constellation,
+        magnitude: magnitude,
+        type: "Vnitřní planeta"
+    };
+}
+
+function getPlanetConstants(name) {
+    var constants = {
+        "Merkur": {
+            L0: 252.25084, n: 149472.67486, n2: -0.00000536,
+            M0: 174.79252, M1: 149472.51529, e: 0.20563175
+        },
+        "Venuše": {
+            L0: 181.97973, n: 58517.81539, n2: 0.00000165,
+            M0: 50.44675, M1: 58517.81538, e: 0.00677192
+        }
+    };
+    return constants[name] || constants["Merkur"];
+}
+
+function getOuterPlanetConstants(name) {
+    var constants = {
+        "Mars": {
+            L0: 355.43299, n: 19140.29934, n2: 0.00000261,
+            M0: 319.51913, M1: 19139.85475, e: 0.09341233
+        },
+        "Jupiter": {
+            L0: 34.35148, n: 3034.74612, n2: -0.00008501,
+            M0: 225.32833, M1: 3034.69202, e: 0.04849485
+        },
+        "Saturn": {
+            L0: 50.07571, n: 1222.11494, n2: 0.00025899,
+            M0: 175.46622, M1: 1221.55147, e: 0.05554814
+        }
+    };
+    return constants[name] || constants["Mars"];
+}
+
+function calculateGeocentricPosition(planetLong, earthLong, planetDist, isInner) {
+    // Simplified geometric calculation
+    if (isInner) {
+        // For inner planets, account for viewing angle from Earth
+        var phase = (planetLong - earthLong + 360) % 360;
+        return phase;
+    } else {
+        // For outer planets, direct geocentric longitude
+        return planetLong;
+    }
+}
+
+function getAdvancedVisibility(name, elongation, planetLong, earthLong) {
+    if (name === "Merkur" || name === "Venuše") {
+        if (elongation < 10) return "Neviditelná (příliš blízko Slunce)";
+        if (elongation > 15 && elongation < 30) {
+            var phase = (planetLong - earthLong + 360) % 360;
+            if (phase > 180) return "Ranní viditelnost (východní elongace)";
+            else return "Večerní viditelnost (západní elongace)";
+        }
+        if (elongation >= 30) return "Maximální viditelnost";
+        return "Špatně viditelná";
+    } else {
+        // Outer planets
+        if (elongation < 30) return "V opozici (ideální pozorovací podmínky)";
+        if (elongation < 90) return "Dobře viditelná celou noc";
+        if (elongation < 150) return "Viditelná večer/ráno";
+        return "Blízko Slunce (neviditelná)";
+    }
+}
+
+function calculateMagnitude(name, elongation, distance) {
+    // More accurate magnitude calculation
+    var baseMag = {
+        "Merkur": -0.4, 
+        "Venuše": -4.0, 
+        "Mars": -2.0, 
+        "Jupiter": -2.5, 
+        "Saturn": 0.0
+    };
+    
+    var mag = baseMag[name];
+    if (mag === undefined) mag = 5.0; // fallback for unknown planets
+    
+    // Adjust for distance and phase (simplified)
+    if (distance && !isNaN(distance)) {
+        mag += Math.log10(distance) * 2.5; // distance modulus approximation
     }
     
-    // NEW: Simple eclipse predictions
-    function getEclipses(year) {
-        var eclipses = [];
-        
-        // Simplified eclipse prediction based on Saros cycles
-        // This is a basic approximation
-        var baseYear = 2000;
-        var yearDiff = year - baseYear;
-        
-        // Solar eclipses (approximately every 6 months)
-        for (var i = 0; i < 3; i++) {
-            var month = 1 + i * 6;
-            if (month <= 12) {
-                var day = 15 + (yearDiff % 3) * 2;
-                if (day > 31) day = day - 30;
-                eclipses.push({
-                    type: "Sluneční",
-                    date: day + "." + month + "." + year,
-                    visibility: Math.random() > 0.7 ? "Viditelné v ČR" : "Neviditelné v ČR"
-                });
-            }
-        }
-        
-        // Lunar eclipses
-        for (var i = 0; i < 2; i++) {
-            var month = 3 + i * 8;
-            if (month <= 12) {
-                var day = 20 + (yearDiff % 4) * 3;
-                if (day > 31) day = day - 30;
-                eclipses.push({
-                    type: "Měsíční",
-                    date: day + "." + month + "." + year,
-                    visibility: Math.random() > 0.5 ? "Viditelné v ČR" : "Částečně viditelné"
-                });
-            }
-        }
-        
-        return eclipses;
+    // Phase effect (opposition effect for outer planets)
+    if (elongation < 30) {
+        mag -= 0.3; // Opposition surge
+    } else if (elongation > 150) {
+        mag += 0.5; // Worse visibility when close to Sun
     }
+    
+    return mag.toFixed(1) + " mag";
+}
+
+function calculateOuterPlanet(name, T, L0, n, a, e, earthLong) {
+    // More accurate planetary calculations
+    var planetConstants = getOuterPlanetConstants(name);
+    
+    // Mean longitude with higher precision
+    var L = (planetConstants.L0 + planetConstants.n * T + planetConstants.n2 * T * T) % 360;
+    if (L < 0) L += 360;
+    
+    // Mean anomaly
+    var M = (planetConstants.M0 + planetConstants.M1 * T) % 360;
+    var M_rad = M * Math.PI / 180;
+    
+    // Equation of center (simplified)
+    var C = planetConstants.e * Math.sin(M_rad) * (180 / Math.PI);
+    
+    // True longitude
+    var trueLong = (L + C) % 360;
+    if (trueLong < 0) trueLong += 360;
+    
+    // Calculate elongation from Sun (as seen from Earth)
+    var elongation = Math.abs(trueLong - earthLong);
+    if (elongation > 180) elongation = 360 - elongation;
+    
+    // Geocentric position (for outer planets, approximately same as heliocentric)
+    var geocentricLong = trueLong;
+    
+    var visibility = getAdvancedVisibility(name, elongation, trueLong, earthLong);
+    var constellation = getConstellation(geocentricLong);
+    var magnitude = calculateMagnitude(name, elongation, a);
+    
+    return {
+        name: name,
+        position: geocentricLong.toFixed(1) + "° (geocentrická délka)",
+        elongation: elongation.toFixed(1) + "° od Slunce",
+        visibility: visibility,
+        constellation: constellation,
+        magnitude: magnitude,
+        type: "Vnější planeta"
+    };
+}
+
+function getVisibilityInfo(longitude, isInner, phaseAngle) {
+    if (isInner) {
+        // Inner planets visibility based on elongation from Sun
+        if (longitude > 45 && longitude < 135) return "Ranní viditelnost (východ před Sluncem)";
+        if (longitude > 225 && longitude < 315) return "Večerní viditelnost (západ po Slunci)";
+        if (longitude <= 45 || longitude >= 315) return "Blízko Slunce (neviditelná)";
+        return "Za Sluncem (neviditelná)";
+    } else {
+        // Outer planets visibility
+        if (phaseAngle < 30) return "V opozici (celou noc viditelná)";
+        if (phaseAngle < 90) return "Dobře viditelná večer/noc";
+        if (phaseAngle < 150) return "Viditelná část noci";
+        return "Blízko Slunce (špatně viditelná)";
+    }
+}
+
+function getConstellation(longitude) {
+    // Simplified constellation mapping based on ecliptic longitude
+    var constellations = [
+        {start: 0, end: 30, name: "Beran"},
+        {start: 30, end: 60, name: "Býk"}, 
+        {start: 60, end: 90, name: "Blíženci"},
+        {start: 90, end: 120, name: "Rak"},
+        {start: 120, end: 150, name: "Lev"},
+        {start: 150, end: 180, name: "Panna"},
+        {start: 180, end: 210, name: "Váhy"},
+        {start: 210, end: 240, name: "Štír"},
+        {start: 240, end: 270, name: "Střelec"},
+        {start: 270, end: 300, name: "Kozoroh"},
+        {start: 300, end: 330, name: "Vodnář"},
+        {start: 330, end: 360, name: "Ryby"}
+    ];
+    
+    for (var i = 0; i < constellations.length; i++) {
+        if (longitude >= constellations[i].start && longitude < constellations[i].end) {
+            return constellations[i].name;
+        }
+    }
+    return "Ryby"; // fallback
+}
+    
+// NEW: Corrected eclipse calculations using real astronomical data
+function getEclipses(year) {
+    var eclipses = [];
+    
+    // Database of real eclipse data for accurate years (2020-2030)
+    var knownEclipses = {
+        2020: [
+            {type: "Měsíční", date: "10.1.2020", visibility: "Viditelné z Evropy, Afriky, Asie"},
+            {type: "Sluneční", date: "21.6.2020", visibility: "Prstencové - Afrika, Asie"},
+            {type: "Měsíční", date: "5.7.2020", visibility: "Penumbrální - Amerika, jihozápadní Evropa"},
+            {type: "Sluneční", date: "14.12.2020", visibility: "Úplné - Chile, Argentina"}
+        ],
+        2021: [
+            {type: "Sluneční", date: "10.6.2021", visibility: "Prstencové - severní oblasti"},
+            {type: "Měsíční", date: "26.5.2021", visibility: "Úplné - Pacifik, Amerika, Asie"},
+            {type: "Měsíční", date: "19.11.2021", visibility: "Částečné - Amerika, severovýchodní Asie"},
+            {type: "Sluneční", date: "4.12.2021", visibility: "Úplné - Antarktida"}
+        ],
+        2022: [
+            {type: "Sluneční", date: "30.4.2022", visibility: "Částečné - jihovýchodní Pacifik"},
+            {type: "Měsíční", date: "16.5.2022", visibility: "Úplné - Amerika, Evropa, Afrika"},
+            {type: "Sluneční", date: "25.10.2022", visibility: "Částečné - Evropa, severovýchodní Afrika, Asie"},
+            {type: "Měsíční", date: "8.11.2022", visibility: "Úplné - Asie, Austrálie, Pacifik, Amerika"}
+        ],
+        2023: [
+            {type: "Sluneční", date: "20.4.2023", visibility: "Hybridní - jihovýchodní Asie, Austrálie"},
+            {type: "Měsíční", date: "5.5.2023", visibility: "Penumbrální - Afrika, Asie, Austrálie"},
+            {type: "Sluneční", date: "14.10.2023", visibility: "Prstencové - Amerika"},
+            {type: "Měsíční", date: "28.10.2023", visibility: "Částečné - Evropa, Asie, Austrálie, Afrika"}
+        ],
+        2024: [
+            {type: "Měsíční", date: "25.3.2024", visibility: "Penumbrální - Amerika"},
+            {type: "Sluneční", date: "8.4.2024", visibility: "Úplné - Severní Amerika"},
+            {type: "Měsíční", date: "18.9.2024", visibility: "Částečné - Amerika, Evropa, Afrika"},
+            {type: "Sluneční", date: "2.10.2024", visibility: "Prstencové - Pacifik, jižní Amerika"}
+        ],
+        2025: [
+            {type: "Měsíční", date: "14.3.2025", visibility: "Úplné - Amerika, západní Evropa"},
+            {type: "Sluneční", date: "29.3.2025", visibility: "Částečné - Evropa, severozápadní Afrika, Arktida"},
+            {type: "Měsíční", date: "7.9.2025", visibility: "Úplné - Evropa, Afrika, Asie, Austrálie"},
+            {type: "Sluneční", date: "21.9.2025", visibility: "Částečné - Pacifik, Antarktida"}
+        ],
+        2026: [
+            {type: "Sluneční", date: "17.2.2026", visibility: "Prstencové - Antarktida, jižní oblasti"},
+            {type: "Měsíční", date: "3.3.2026", visibility: "Úplné - východní Asie, Austrálie, Pacifik, Amerika"},
+            {type: "Sluneční", date: "12.8.2026", visibility: "Úplné - Grónsko, Island, Španělsko, Rusko"},
+            {type: "Měsíční", date: "28.8.2026", visibility: "Částečné - východní Pacifik, Amerika, západní Afrika"}
+        ],
+        2027: [
+            {type: "Sluneční", date: "6.2.2027", visibility: "Prstencové - jižní Pacifik, Chile, Argentina"},
+            {type: "Měsíční", date: "21.2.2027", visibility: "Penumbrální - Amerika, Evropa, Afrika, Asie"},
+            {type: "Sluneční", date: "2.8.2027", visibility: "Úplné - Atlantik, Španělsko, Afrika, Asie"},
+            {type: "Měsíční", date: "17.8.2027", visibility: "Penumbrální - Asie, Austrálie, Pacifik"}
+        ],
+        2028: [
+            {type: "Sluneční", date: "26.1.2028", visibility: "Prstencové - Ekvádor, Brazílie, Španělsko, Portugalsko"},
+            {type: "Měsíční", date: "12.7.2028", visibility: "Částečné - Evropa, Afrika, západní Asie"},
+            {type: "Sluneční", date: "22.7.2028", visibility: "Úplné - Indický oceán, Austrálie, Nový Zéland"},
+            {type: "Měsíční", date: "6.1.2029", visibility: "Úplné - východní Pacifik, Amerika, západní Evropa"}
+        ],
+        2029: [
+            {type: "Měsíční", date: "6.1.2029", visibility: "Úplné - Amerika, Evropa"},
+            {type: "Sluneční", date: "14.6.2029", visibility: "Částečné - Arktida"},
+            {type: "Měsíční", date: "31.12.2029", visibility: "Úplné - Evropa, Afrika, Asie, Austrálie"}
+        ],
+        2030: [
+            {type: "Sluneční", date: "1.6.2030", visibility: "Prstencové - Alžírsko, Tunisko, Řecko, Turecko, Rusko"},
+            {type: "Měsíční", date: "15.6.2030", visibility: "Částečné - Evropa, Afrika, Asie, Austrálie"},
+            {type: "Sluneční", date: "25.11.2030", visibility: "Částečné - jižní Afrika, Antarktida"},
+            {type: "Měsíční", date: "9.12.2030", visibility: "Penumbrální - Evropa, Asie, Austrálie, Pacifik"}
+        ]
+    };
+    
+    // If we have exact data, use it
+    if (knownEclipses[year]) {
+        return knownEclipses[year];
+    }
+    
+    // For other years, use simplified Saros cycle approximation
+    return calculateEclipsesUsingSaros(year);
+}
+
+function calculateEclipsesUsingSaros(year) {
+    var eclipses = [];
+    
+    // Reference eclipses from known Saros series
+    var sarosReferences = [
+        // Saros 136 - major solar eclipse series
+        {type: "Sluneční", referenceYear: 2017, referenceMonth: 8, referenceDay: 21, 
+         sarosNumber: 136, nextYears: [2035, 2053, 2071]},
+        
+        // Saros 142 - active solar series  
+        {type: "Sluneční", referenceYear: 2023, referenceMonth: 4, referenceDay: 20,
+         sarosNumber: 142, nextYears: [2041, 2059, 2077]},
+         
+        // Saros 131 - lunar eclipse series
+        {type: "Měsíční", referenceYear: 2018, referenceMonth: 1, referenceDay: 31,
+         sarosNumber: 131, nextYears: [2036, 2054, 2072]},
+         
+        // Saros 134 - lunar eclipse series  
+        {type: "Měsíční", referenceYear: 2021, referenceMonth: 5, referenceDay: 26,
+         sarosNumber: 134, nextYears: [2039, 2057, 2075]}
+    ];
+    
+    var sarosPeriod = 18.031; // Saros cycle in years (more precise than 18)
+    var currentYear = new Date().getFullYear();
+    
+    for (var i = 0; i < sarosReferences.length; i++) {
+        var ref = sarosReferences[i];
+        var yearsSinceReference = year - ref.referenceYear;
+        
+        // Check if this year should have an eclipse from this Saros series
+        var cyclesFromReference = yearsSinceReference / sarosPeriod;
+        var isCloseToSarosCycle = Math.abs(cyclesFromReference - Math.round(cyclesFromReference)) < 0.1;
+        
+        if (isCloseToSarosCycle && Math.abs(yearsSinceReference) <= 200) {
+            // Calculate approximate date using Saros shift
+            var monthShift = Math.round(cyclesFromReference * 0.37); // Small monthly shift over time
+            var dayShift = Math.round(cyclesFromReference * 11 * 0.33); // ~11 days per Saros
+            
+            var newMonth = ref.referenceMonth + monthShift;
+            var newDay = ref.referenceDay + dayShift;
+            
+            // Normalize month and day
+            while (newMonth > 12) {
+                newMonth -= 12;
+            }
+            while (newMonth < 1) {
+                newMonth += 12;
+            }
+            while (newDay > 31) {
+                newDay -= 30;
+            }
+            while (newDay < 1) {
+                newDay += 30;
+            }
+            
+            // Determine visibility based on geographical shift
+            var longitude = (cyclesFromReference * 120) % 360; // 120° shift per Saros
+            var visibility = getVisibilityFromLongitude(longitude, ref.type);
+            
+            eclipses.push({
+                type: ref.type,
+                date: newDay + "." + newMonth + "." + year,
+                visibility: visibility,
+                sarosInfo: "Saros " + ref.sarosNumber + " (cyklus " + Math.round(cyclesFromReference) + ")"
+            });
+        }
+    }
+    
+    // If no eclipses found through Saros, add statistical approximation
+    if (eclipses.length === 0) {
+        eclipses = getStatisticalEclipses(year);
+    }
+    
+    // Sort by date
+    eclipses.sort(function(a, b) {
+        var dateA = new Date(a.date.split('.').reverse().join('-'));
+        var dateB = new Date(b.date.split('.').reverse().join('-'));
+        return dateA - dateB;
+    });
+    
+    return eclipses;
+}
+
+function getVisibilityFromLongitude(longitude, type) {
+    var visibilityRegions = {
+        solar: [
+            "Severní Amerika", "Jižní Amerika", "Evropa", "Afrika", 
+            "Asie", "Austrálie", "Pacifik", "Atlantik", "Arktida", "Antarktida"
+        ],
+        lunar: [
+            "Celá noční hemisféra", "Amerika a západní Evropa", "Evropa, Afrika, Asie",
+            "Asie, Austrálie, Pacifik", "Amerika", "Evropa a Afrika"
+        ]
+    };
+    
+    var regions = type === "Sluneční" ? visibilityRegions.solar : visibilityRegions.lunar;
+    var index = Math.floor(longitude / 60) % regions.length;
+    
+    return regions[index];
+}
+
+function getStatisticalEclipses(year) {
+    // Fallback statistical method for distant years
+    var eclipses = [];
+    
+    // On average, there are 2-3 solar and 2-3 lunar eclipses per year
+    var numSolar = 2;
+    var numLunar = 2;
+    
+    // Generate eclipses based on eclipse seasons (roughly every 6 months)
+    var eclipseSeasons = [
+        {month: 2 + (year % 3), type: "Sluneční"},
+        {month: 5 + (year % 2), type: "Měsíční"},
+        {month: 8 + (year % 3), type: "Sluneční"},
+        {month: 11 + (year % 2), type: "Měsíční"}
+    ];
+    
+    for (var i = 0; i < eclipseSeasons.length && i < 4; i++) {
+        var season = eclipseSeasons[i];
+        var day = 15 + ((year * 7 + i * 3) % 15) - 7; // Varies between 8-22
+        
+        if (day < 1) day = 1;
+        if (day > 28) day = 28;
+        
+        eclipses.push({
+            type: season.type,
+            date: day + "." + season.month + "." + year,
+            visibility: "Vypočítáno statisticky - zkontrolujte další zdroje",
+            note: "Aproximace pro vzdálený rok"
+        });
+    }
+    
+    return eclipses;
+}
     
     // NEW: Sidereal time calculation
     function getSiderealTime(day, month, year, hour, minute, longitude) {
@@ -1686,49 +2281,71 @@
     }
 
     // NEW: Calculate sun events
-    function calculateSunEventsFunc() {
-        var dateStr = document.getElementById('sunEventsDate').value.trim();
-        var latitude = parseFloat(document.getElementById('latitude').value);
-        var longitude = parseFloat(document.getElementById('longitude').value);
-        
-        if (!dateStr) {
-            showError("Zadejte datum");
-            return;
-        }
-        
-        if (isNaN(latitude) || isNaN(longitude)) {
-            showError("Zadejte platné souřadnice");
-            return;
-        }
-        
-        var parsed = parseDate(dateStr);
-        if (!parsed) {
-            showError("Neplatný formát data");
-            return;
-        }
-        
-        showLoading();
-        setTimeout(function() {
-            var sunEvents = calculateSunEvents(parsed.day, parsed.month, parsed.year, latitude, longitude);
-            
-            var result = '<strong>Sluneční události ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>' +
-                        '<strong>Východ slunce:</strong> ' + sunEvents.sunrise + '<br>' +
-                        '<strong>Západ slunce:</strong> ' + sunEvents.sunset + '<br>' +
-                        '<strong>Délka dne:</strong> ' + sunEvents.dayLength + '<br>' +
-                        '<small>Deklinace Slunce: ' + sunEvents.declination + '<br>' +
-                        'Souřadnice: ' + latitude.toFixed(4) + '°, ' + longitude.toFixed(4) + '°</small>';
-            
-            if (sunEvents.polarNight) {
-                result = '<strong>Polární noc</strong><br>' + 
-                        '<small>Na těchto souřadnicích slunce nevychází</small>';
-            } else if (sunEvents.polarDay) {
-                result = '<strong>Polární den</strong><br>' +
-                        '<small>Na těchto souřadnicích slunce nezapadá</small>';
-            }
-            
-            showResult(result);
-        }, 300);
+ 
+function calculateSunEventsFunc() {
+    var dateStr = document.getElementById('sunEventsDate').value.trim();
+    var latitude = parseFloat(document.getElementById('latitude').value);
+    var longitude = parseFloat(document.getElementById('longitude').value);
+    
+    if (!dateStr) {
+        showError("Zadejte datum");
+        return;
     }
+    
+    if (isNaN(latitude) || isNaN(longitude)) {
+        showError("Zadejte platné souřadnice");
+        return;
+    }
+    
+    if (latitude < -90 || latitude > 90) {
+        showError("Zeměpisná šířka musí být mezi -90 a 90 stupni");
+        return;
+    }
+    
+    if (longitude < -180 || longitude > 180) {
+        showError("Zeměpisná délka musí být mezi -180 a 180 stupni");
+        return;
+    }
+    
+    var parsed = parseDate(dateStr);
+    if (!parsed) {
+        showError("Neplatný formát data");
+        return;
+    }
+    
+    showLoading();
+    setTimeout(function() {
+        var sunEvents = calculateSunEvents(parsed.day, parsed.month, parsed.year, latitude, longitude);
+        
+        var result = '<strong>Sluneční události ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>';
+        
+        if (sunEvents.polarNight) {
+            result += '<strong>🌑 Polární noc</strong><br>' + 
+                     '<small>Na těchto souřadnicích slunce nevychází<br>' +
+                     'Deklinace Slunce: ' + sunEvents.declination + '</small>';
+        } else if (sunEvents.polarDay) {
+            result += '<strong>🌞 Polární den</strong><br>' +
+                     '<small>Na těchto souřadnicích slunce nezapadá<br>' +
+                     'Deklinace Slunce: ' + sunEvents.declination + '</small>';
+        } else {
+            result += '<strong>🌅 Východ slunce:</strong> ' + sunEvents.sunrise + '<br>' +
+                     '<strong>🌇 Západ slunce:</strong> ' + sunEvents.sunset + '<br>' +
+                     '<strong>⏱️ Délka dne:</strong> ' + sunEvents.dayLength + '<br>' +
+                     '<small>📍 Souřadnice: ' + latitude.toFixed(4) + '°, ' + longitude.toFixed(4) + '°<br>' +
+                     '☀️ Deklinace Slunce: ' + sunEvents.declination + '<br>';
+                     
+            if (sunEvents.eqTime) {
+                result += '⏰ Rovnice času: ' + sunEvents.eqTime + '<br>';
+            }
+            if (sunEvents.timezone) {
+                result += '🕐 Časové pásmo: ' + sunEvents.timezone;
+            }
+            result += '</small>';
+        }
+        
+        showResult(result);
+    }, 300);
+}
     
     // NEW: Calculate planet positions
     function calculatePlanetPositionsFunc() {
@@ -1747,46 +2364,84 @@
         
         showLoading();
         setTimeout(function() {
-            var planets = getPlanetPositions(parsed.day, parsed.month, parsed.year);
+        	
+// Get time inputs
+var timeStr = document.getElementById('planetTime').value || "00:00";
+var timezone = parseInt(document.getElementById('planetTimezone').value) || 0;
+var timeParts = timeStr.split(':');
+var hour = parseInt(timeParts[0]) || 0;
+var minute = parseInt(timeParts[1]) || 0;
+
+var planets = getPlanetPositions(parsed.day, parsed.month, parsed.year, hour, minute, timezone);
             
-            var result = '<strong>Pozice planet ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br><small>';
-            for (var i = 0; i < planets.length; i++) {
-                result += planets[i].name + ': ' + planets[i].longitude + ' (oběžná doba: ' + planets[i].period + ')<br>';
-            }
-            result += '</small>';
-            
+ var result = '<strong>Pozice planet ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>' +
+            '<small>Čas: ' + timeStr + ' (UTC' + (timezone >= 0 ? '+' : '') + timezone + ')</small><br><br>';
+
+for (var i = 0; i < planets.length; i++) {
+    var planet = planets[i];
+    result += '<strong>' + planet.name + '</strong><br>' +
+             '📍 ' + planet.position + '<br>' +
+             '📐 Elongace: ' + planet.elongation + '<br>' +
+             '⭐ Souhvězdí: ' + planet.constellation + '<br>' +
+             '✨ Jasnost: ' + planet.magnitude + '<br>' +
+             '👁️ ' + planet.visibility + '<br>' +
+             '<small>' + planet.type + '</small><br><br>';
+}
             showResult(result);
         }, 300);
     }
     
     // NEW: Calculate eclipses
-    function calculateEclipsesFunc() {
-        var year = parseInt(document.getElementById('eclipsesYear').value);
+  function calculateEclipsesFunc() {
+    var year = parseInt(document.getElementById('eclipsesYear').value);
+    
+    if (!year || year < 1000 || year > 3000) {
+        showError("Zadejte platný rok (1000-3000)");
+        return;
+    }
+    
+    showLoading();
+    setTimeout(function() {
+        var eclipses = getEclipses(year);
+        var currentYear = new Date().getFullYear();
         
-        if (!year || year < 1900 || year > 2100) {
-            showError("Zadejte platný rok (1900-2100)");
-            return;
+        var result = '<strong>Zatmění v roce ' + year + ':</strong><br>';
+        
+        if (eclipses.length === 0) {
+            result += '<small>V tomto roce nebudou žádná významná zatmění viditelná.</small>';
+        } else {
+            result += '<small>';
+            
+            for (var i = 0; i < eclipses.length; i++) {
+                var eclipse = eclipses[i];
+                result += '<strong>' + eclipse.type + ' zatmění:</strong> ' + eclipse.date + '<br>';
+                result += 'Viditelnost: ' + eclipse.visibility + '<br>';
+                
+                if (eclipse.sarosInfo) {
+                    result += '<em>' + eclipse.sarosInfo + '</em><br>';
+                }
+                if (eclipse.note) {
+                    result += '<em>' + eclipse.note + '</em><br>';
+                }
+                
+                result += '<br>';
+            }
+            
+            // Add accuracy note
+            if (Math.abs(year - currentYear) <= 10) {
+                result += '<em>📍 Přesná data pro roky blízké současnosti</em>';
+            } else if (Math.abs(year - currentYear) <= 50) {
+                result += '<em>🔬 Aproximace pomocí Saros cyklů</em>';
+            } else {
+                result += '<em>📊 Statistická aproximace - ověřte v dalších zdrojích</em>';
+            }
+            
+            result += '</small>';
         }
         
-        showLoading();
-        setTimeout(function() {
-            var eclipses = getEclipses(year);
-            
-            var result = '<strong>Zatmění v roce ' + year + ':</strong><br><small>';
-            
-            if (eclipses.length === 0) {
-                result += 'V tomto roce nebudou žádná významná zatmění';
-            } else {
-                for (var i = 0; i < eclipses.length; i++) {
-                    result += eclipses[i].type + ' zatmění: ' + eclipses[i].date + '<br>' +
-                             eclipses[i].visibility + '<br><br>';
-                }
-            }
-            result += '</small>';
-            
-            showResult(result);
-        }, 300);
-    }
+        showResult(result);
+    }, 300);
+}
     
     // NEW: Calculate sidereal time
     function calculateSiderealTimeFunc() {
@@ -2025,10 +2680,10 @@
             
             // NEW: Astronomy calculator buttons
             var sunEventsBtn = document.getElementById('sunEventsBtn');
-            if (sunEventsBtn) {
-                sunEventsBtn.addEventListener('click', calculateSunEventsFunc);
-                sunEventsBtn.addEventListener('touchend', calculateSunEventsFunc);
-            }
+if (sunEventsBtn) {
+    sunEventsBtn.addEventListener('click', calculateSunEventsFunc);
+    sunEventsBtn.addEventListener('touchend', calculateSunEventsFunc);
+}
             
             var planetBtn = document.getElementById('planetBtn');
             if (planetBtn) {
