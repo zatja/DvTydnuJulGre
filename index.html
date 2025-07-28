@@ -849,7 +849,7 @@
                     <input type="text" id="longitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180" inputmode="numeric">
                 </div>
             </div>
-            <div class="format-hint">Praha: 50.0755, 14.4378 • Brno: 49.1951, 16.6068</div>
+            <div class="format-hint">Praha: 50.0755, 14.4378 • Brno: 49.1951, 16.6068<br>Časy se zobrazí v místním časovém pásmu (včetně letního času)</div>
             <button id="sunEventsBtn" class="calculate-btn">Vypočítat sluneční události</button>
         </div>
 
@@ -876,10 +876,11 @@
                     <label class="input-label">Časové pásmo:</label>
                     <select id="planetTimezone" class="date-input">
                         <option value="0">UTC (Greenwichský čas)</option>
-                        <option value="1" selected>CET (UTC+1)</option>
+                        <option value="1" selected>CET (UTC+1 - zimní čas)</option>
                         <option value="2">CEST (UTC+2 - letní čas)</option>
-                        <option value="-5">EST (UTC-5)</option>
-                        <option value="-8">PST (UTC-8)</option>
+                        <option value="-5">EST (UTC-5 - východní USA)</option>
+                        <option value="-8">PST (UTC-8 - západní USA)</option>
+                        <option value="9">JST (UTC+9 - Japonsko)</option>
                     </select>
                 </div>
             </div>
@@ -924,7 +925,7 @@
                     <input type="time" id="siderealTime" class="date-input">
                 </div>
                 <div class="input-col">
-                    <label class="input-label">Letní čas:</label>
+                    <label class="input-label">Letní čas (DST):</label>
                     <select id="siderealDST" class="date-input">
                         <option value="0">Zimní čas (standardní)</option>
                         <option value="1">Letní čas (+1 hodina)</option>
@@ -934,7 +935,7 @@
             <div class="input-section">
                 <label class="input-label">Zeměpisná délka:</label>
                 <input type="text" id="siderealLongitude" class="location-input" placeholder="14.4378" step="0.0001" min="-180" max="180" inputmode="numeric">
-                <div class="format-hint">Praha: 14.4378° • Londýn: -0.1278° • New York: -74.0060°</div>
+                <div class="format-hint">Praha: 14.4378° • Londýn: -0.1278° • New York: -74.0060°<br>Časové pásmo se vypočítá automaticky z délky (15° = 1 hodina)</div>
             </div>
             
             <button id="siderealBtn" class="calculate-btn">Vypočítat hvězdný čas</button>
@@ -1554,7 +1555,7 @@
         else return "🌑";
     }
 
-    // Corrected sun events calculations using NOAA algorithm
+    // Corrected sun events calculations using NOAA algorithm with proper timezone handling
     function calculateSunEvents(day, month, year, latitude, longitude) {
         try {
             var jd = getJulianDayNumber(day, month, year);
@@ -1636,19 +1637,18 @@
             
             var HA = Math.acos(cosHA) * 180 / Math.PI; // Hour angle in degrees
             
-            // Determine timezone (with DST consideration)
+            // Get timezone for the location
             var timezone = determineTimezone(longitude, month);
             
-            // Calculate sunrise and sunset times (local solar time)
-            var solarNoon = 12 - eqTime / 60 + longitude / 15 - timezone ;
-            // Apply timezone offset differently
-    var timezoneOffset = timezone;
-            var sunrise = solarNoon - HA / 15;
-            var sunset = solarNoon + HA / 15;
-            // Apply timezone correction here instead
-    sunrise += timezoneOffset;
-    sunset += timezoneOffset;
-
+            // Calculate times in solar time first
+            var solarNoon = 12 - eqTime / 60; // Solar noon in solar time
+            var sunriseUTC = solarNoon - HA / 15 - longitude / 15; // UTC time
+            var sunsetUTC = solarNoon + HA / 15 - longitude / 15; // UTC time
+            
+            // Convert UTC to local time
+            var sunrise = sunriseUTC + timezone;
+            var sunset = sunsetUTC + timezone;
+            
             // Ensure times are in 0-24 range
             while (sunrise < 0) sunrise += 24;
             while (sunrise >= 24) sunrise -= 24;
@@ -1680,19 +1680,39 @@
     }
 
     function determineTimezone(longitude, month) {
-        // Basic timezone from longitude
+        // Basic timezone from longitude (15° = 1 hour)
         var basicTZ = Math.round(longitude / 15);
         
-        // Determine if DST applies (simplified for European rules)
-        var isDST = (month > 3 && month < 10) || 
-                    (month === 3 && month >= 3) ||  // Rough DST start
-                    (month === 10 && month <= 10);  // Rough DST end
+        // DST logic for European rules
+        var isDST = false;
         
-        // Common timezone adjustments
-        if (longitude >= -7.5 && longitude <= 22.5) { // Central Europe
-            return isDST ? 2 : 1 ; // CET/CEST
+        // European DST: last Sunday in March to last Sunday in October
+        if (month > 3 && month < 10) {
+            // Definitely DST (April to September)
+            isDST = true;
+        } else if (month === 3) {
+            // March - DST starts around March 25-31 (simplified)
+            isDST = true; // Could be refined to check actual date
+        } else if (month === 10) {
+            // October - DST ends around October 25-31 (simplified)
+            isDST = false; // Could be refined to check actual date
+        }
+        // For months 1,2,11,12 (Jan,Feb,Nov,Dec) isDST remains false
+        
+        // Timezone corrections for specific regions
+        if (longitude >= -10 && longitude <= 40) { // Europe roughly
+            if (longitude >= -10 && longitude <= 5) { // Western Europe (UK, Portugal, western France)
+                return isDST ? 1 : 0; // GMT/BST
+            } else if (longitude >= 5 && longitude <= 15) { // Central Europe (CET/CEST)
+                return isDST ? 2 : 1; // CET/CEST
+            } else if (longitude >= 15 && longitude <= 30) { // Eastern Europe (EET/EEST)
+                return isDST ? 3 : 2; // EET/EEST
+            } else { // Further east
+                return isDST ? 4 : 3;
+            }
         }
         
+        // For other regions outside Europe, use basic calculation
         return basicTZ + (isDST ? 1 : 0);
     }
 
@@ -2238,19 +2258,21 @@
         return eclipses;
     }
         
-    // Corrected Sidereal time calculation (USNO algorithm)
+    // Corrected Sidereal time calculation with improved timezone handling
     function getSiderealTime(day, month, year, hour, minute, longitude, dstOffset) {
         if (dstOffset === undefined) dstOffset = 0;
         
-        // Calculate timezone from longitude (longitude / 15°)
+        // Calculate standard timezone from longitude (15° = 1 hour)
         var baseTimezone = Math.round(longitude / 15);
+        
+        // Apply DST offset
         var totalTimezone = baseTimezone + dstOffset;
         
         // Convert local time to UTC
         var utcHour = hour - totalTimezone;
         var utcMinute = minute;
         
-        // Handle day overflow/underflow
+        // Handle day overflow/underflow when converting to UTC
         var utcDay = day;
         var utcMonth = month;
         var utcYear = year;
@@ -2283,7 +2305,7 @@
         
         // USNO Algorithm for Greenwich Mean Sidereal Time
         var jd0 = Math.floor(getJulianDayNumber(utcDay, utcMonth, utcYear)) + 0.5; // Midnight JD
-        var H = utcHour + utcMinute / 60.0; // Hours since midnight
+        var H = utcHour + utcMinute / 60.0; // Hours since midnight UTC
         var DUT = jd0 - 2451545.0; // Days since J2000.0 epoch
         var T = DUT / 36525; // Centuries since J2000.0
         
@@ -2313,11 +2335,17 @@
         if (lstS >= 60) { lstM++; lstS = 0; }
         if (lstM >= 60) { lstH++; lstM = 0; }
         
+        // Create timezone description
+        var timezoneDesc = "UTC" + (totalTimezone >= 0 ? "+" : "") + totalTimezone;
+        if (dstOffset > 0) {
+            timezoneDesc += " (s letním časem)";
+        }
+        
         return {
             gst: gstH + ":" + (gstM < 10 ? '0' : '') + gstM + ":" + (gstS < 10 ? '0' : '') + gstS,
             lst: lstH + ":" + (lstM < 10 ? '0' : '') + lstM + ":" + (lstS < 10 ? '0' : '') + lstS,
             lstDegrees: (LST * 15).toFixed(2) + "°",
-            timezone: "UTC" + (totalTimezone >= 0 ? "+" : "") + totalTimezone,
+            timezone: timezoneDesc,
             utcTime: (utcHour < 10 ? '0' : '') + utcHour + ":" + (utcMinute < 10 ? '0' : '') + utcMinute
         };
     }
@@ -2625,6 +2653,12 @@
         setTimeout(function() {
             var sunEvents = calculateSunEvents(parsed.day, parsed.month, parsed.year, latitude, longitude);
             
+            // Debug info for timezone calculation
+            var debugTimezone = determineTimezone(longitude, parsed.month);
+            var isDSTDebug = parsed.month > 3 && parsed.month < 10 || 
+                           (parsed.month === 3) || 
+                           (parsed.month === 10 && false); // October simplified to no DST
+            
             var result = '<strong>Sluneční události ' + parsed.day + '.' + parsed.month + '.' + parsed.year + '</strong><br>';
             
             if (sunEvents.polarNight) {
@@ -2647,6 +2681,12 @@
                 }
                 if (sunEvents.timezone) {
                     result += '🕐 Časové pásmo: ' + sunEvents.timezone;
+                    
+                    // Add debug info for verification
+                    var monthName = ['Leden','Únor','Březen','Duben','Květen','Červen',
+                                   'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'][parsed.month-1];
+                    var dstStatus = isDSTDebug ? 'Letní čas' : 'Standardní čas';
+                    result += '<br>📅 ' + monthName + ' → ' + dstStatus;
                 }
                 result += '</small>';
             }
@@ -3128,11 +3168,21 @@
                 siderealTime.value = (currentHour < 10 ? '0' : '') + currentHour + ':' + (currentMinute < 10 ? '0' : '') + currentMinute;
             }
             
-            // Set default DST for current season (simplified)
+            // Set default DST for current season with improved logic
             var siderealDST = document.getElementById('siderealDST');
             if (siderealDST) {
                 var currentMonth = today.getMonth() + 1; // 1-12
-                var isDST = (currentMonth >= 4 && currentMonth <= 10); // Rough DST period
+                // European DST logic: April to September definitely DST, March/October depends on date
+                var isDST = false;
+                if (currentMonth > 3 && currentMonth < 10) {
+                    isDST = true; // Definitely DST
+                } else if (currentMonth === 3) {
+                    // In March, assume DST after 25th (simplified)
+                    isDST = today.getDate() >= 25;
+                } else if (currentMonth === 10) {
+                    // In October, assume DST before 25th (simplified)
+                    isDST = today.getDate() < 25;
+                }
                 siderealDST.value = isDST ? "1" : "0";
             }
             
