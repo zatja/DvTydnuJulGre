@@ -3417,6 +3417,66 @@
             // Initialize smart connection monitoring
             setupSmartConnectionMonitoring();
             
+            // Export debug functions to global scope for testing
+            if (typeof window !== 'undefined') {
+                window.PWADebug = {
+                    showInstallPrompt: function() {
+                        showInstallPrompt();
+                        console.log('🔧 DEBUG: Install prompt forced');
+                    },
+                    clearInstallData: function() {
+                        if (hasLocalStorage) {
+                            try {
+                                localStorage.removeItem('pwa-install-dismissed');
+                                localStorage.removeItem('pwa-installed');
+                                console.log('🔧 DEBUG: Install data cleared');
+                            } catch(e) {
+                                console.log('🔧 DEBUG: Failed to clear install data');
+                            }
+                        }
+                    },
+                    checkCacheStatus: function() {
+                        checkCacheStatus();
+                        console.log('🔧 DEBUG: Cache status check triggered');
+                    },
+                    forceInstallPrompt: function() {
+                        var installPrompt = document.getElementById('installPrompt');
+                        if (installPrompt) {
+                            installPrompt.classList.add('show');
+                            console.log('🔧 DEBUG: Install prompt UI forced visible');
+                        } else {
+                            console.log('🔧 DEBUG: Install prompt element not found');
+                        }
+                    },
+                    hideInstallPrompt: function() {
+                        var installPrompt = document.getElementById('installPrompt');
+                        if (installPrompt) {
+                            installPrompt.classList.remove('show');
+                            console.log('🔧 DEBUG: Install prompt hidden');
+                        }
+                    },
+                    getInstallState: function() {
+                        var state = {
+                            isInstalled: isInstalled,
+                            hasDeferred: !!deferredPrompt,
+                            dismissed: hasLocalStorage ? localStorage.getItem('pwa-install-dismissed') : null,
+                            swSupported: 'serviceWorker' in navigator,
+                            standalone: window.matchMedia('(display-mode: standalone)').matches
+                        };
+                        console.table(state);
+                        return state;
+                    }
+                };
+                
+                console.log('🔧 PWA Debug functions available:');
+                console.log('• PWADebug.showInstallPrompt() - zobrazí install prompt');
+                console.log('• PWADebug.clearInstallData() - vymaže install data');
+                console.log('• PWADebug.forceInstallPrompt() - vynutí UI prompt');
+                console.log('• PWADebug.hideInstallPrompt() - skryje prompt');
+                console.log('• PWADebug.getInstallState() - zobrazí stav instalace');
+                console.log('• PWADebug.checkCacheStatus() - zkontroluje cache');
+            }
+            
             // Fallback for unsupported browsers
             function showOfflineFallback() {
                 setupFallbackCache();
