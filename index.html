@@ -15,25 +15,580 @@
     <meta name="msapplication-TileColor" content="#8B7355">
     <meta name="msapplication-config" content="browserconfig.xml">
     
-    <!-- ✅ OPRAVENÝ PWA Manifest - externí soubor místo inline base64 -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- ✅ OPRAVENÉ Apple Touch ikony - externí soubory místo inline base64 -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120.png">
+    <!-- PWA Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyBnaWQ9U2ltdWxhdG9yIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiPiA8ZGVmcz5OcmFvaWVudEN0cm1ibGUgaW5oZXJpdFhzZy5cX0Zyb20geCw0IHkuNS52MTkuOUgyMzQiLD5AdGFzLjIK18ksOzRjSEpBIGVudHJ1OjFrMUdiQztOZFhCbkFGZE12SGRtbVJRbk1qZ1JkZXN3UVE9PSI+PC9zdmc+">
     
-    <!-- ✅ OPRAVENÉ Favicon - externí soubory s PNG fallback -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzhCNzM1NSIvPgo8dGV4dCB4PSI1IiB5PSIyNCIgZm9udC1mYW1pbHk9InN5c3RlbS11aSIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIj7wn5OFPC90ZXh0Pgo8L3N2Zz4K">
     
-    <!-- Zachovat původní styly -->
     <style>
-        /* ... všechny původní styly ... */
+        :root {
+            --bg-primary: linear-gradient(135deg, #8B7355 0%, #6B5B47 25%, #4A4A3A 50%, #5D4E37 75%, #8B7355 100%);
+            --bg-container: linear-gradient(145deg, rgba(139, 118, 76, 0.8) 0%, rgba(101, 67, 33, 0.9) 100%);
+            --border-main: rgba(205, 186, 150, 0.4);
+            --text-primary: #F5E6D3;
+            --text-accent: #CDBA96;
+            --control-bg: linear-gradient(145deg, rgba(15, 15, 15, 0.9) 0%, rgba(35, 35, 35, 0.8) 100%);
+            --control-border: rgba(60, 60, 60, 0.8);
+            --button-bg: linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 30%, #0f0f0f 70%, #1a1a1a 100%);
+        }
+        .theme-blue {
+            --bg-primary: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 25%, #1e40af 50%, #2563eb 75%, #1e3a8a 100%);
+            --bg-container: linear-gradient(145deg, rgba(30, 58, 138, 0.8) 0%, rgba(37, 99, 235, 0.9) 100%);
+            --border-main: rgba(147, 197, 253, 0.4);
+            --text-primary: #dbeafe;
+            --text-accent: #93c5fd;
+        }
+        .theme-green {
+            --bg-primary: linear-gradient(135deg, #14532d 0%, #16a34a 25%, #15803d 50%, #22c55e 75%, #14532d 100%);
+            --bg-container: linear-gradient(145deg, rgba(20, 83, 45, 0.8) 0%, rgba(21, 128, 61, 0.9) 100%);
+            --border-main: rgba(134, 239, 172, 0.4);
+            --text-primary: #dcfce7;
+            --text-accent: #86efac;
+        }
+        .theme-purple {
+            --bg-primary: linear-gradient(135deg, #581c87 0%, #a855f7 25%, #7c3aed 50%, #8b5cf6 75%, #581c87 100%);
+            --bg-container: linear-gradient(145deg, rgba(88, 28, 135, 0.8) 0%, rgba(124, 58, 237, 0.9) 100%);
+            --border-main: rgba(196, 181, 253, 0.4);
+            --text-primary: #f3e8ff;
+            --text-accent: #c4b5fd;
+        }
+        .theme-red {
+            --bg-primary: linear-gradient(135deg, #7f1d1d 0%, #dc2626 25%, #b91c1c 50%, #ef4444 75%, #7f1d1d 100%);
+            --bg-container: linear-gradient(145deg, rgba(127, 29, 29, 0.8) 0%, rgba(185, 28, 28, 0.9) 100%);
+            --border-main: rgba(252, 165, 165, 0.4);
+            --text-primary: #fef2f2;
+            --text-accent: #fca5a5;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: var(--bg-primary); 
+            min-height: 100vh; 
+            padding: 10px; 
+            color: var(--text-primary); 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); 
+            overflow-x: hidden; 
+        }
+        
+        .container { 
+            max-width: 100%; 
+            width: 100%; 
+            margin: 0 auto; 
+            background: var(--bg-container); 
+            border-radius: 20px; 
+            padding: 20px; 
+            border: 2px solid var(--border-main); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+            position: relative; 
+        }
+        
+        .menu-container { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 100; 
+        }
+        
+        .menu-button { 
+            width: 44px; 
+            height: 44px; 
+            border-radius: 50%; 
+            background: var(--button-bg); 
+            border: 2px solid var(--control-border); 
+            color: var(--text-primary); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 20px; 
+            font-weight: bold; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9); 
+            -webkit-user-select: none; 
+            user-select: none; 
+            z-index: 101; 
+        }
+        
+        .menu-button:active { 
+            transform: scale(0.95); 
+            background: rgba(50, 50, 50, 0.8); 
+        }
+        
+        .menu-dropdown { 
+            position: absolute; 
+            top: 50px; 
+            right: 0; 
+            min-width: 320px; 
+            background: var(--control-bg); 
+            border: 2px solid var(--control-border); 
+            border-radius: 12px; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7); 
+            opacity: 0; 
+            visibility: hidden; 
+            transform: translateY(-10px); 
+            transition: all 0.3s ease; 
+            max-height: 70vh; 
+            overflow-y: auto; 
+            display: none; 
+        }
+        
+        .menu-dropdown.show { 
+            opacity: 1; 
+            visibility: visible; 
+            transform: translateY(0); 
+            display: block; 
+        }
+        
+        .menu-section { 
+            padding: 8px 0; 
+            border-bottom: 1px solid rgba(80, 80, 80, 0.3); 
+        }
+        
+        .menu-section:last-child { 
+            border-bottom: none; 
+        }
+        
+        .menu-section-title { 
+            padding: 8px 16px; 
+            color: var(--text-accent); 
+            font-size: 12px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .menu-item, .theme-item { 
+            padding: 12px 16px; 
+            color: var(--text-primary); 
+            display: flex; 
+            align-items: center; 
+            font-size: 15px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); 
+            -webkit-user-select: none; 
+            user-select: none; 
+            min-height: 44px; 
+        }
+        
+        .menu-item:active, .theme-item:active { 
+            background: rgba(60, 60, 60, 0.6); 
+            color: var(--text-accent); 
+        }
+        
+        .menu-item.has-submenu { 
+            justify-content: space-between; 
+        }
+        
+        .menu-item.has-submenu::after { 
+            content: "▶"; 
+            font-size: 12px; 
+            color: var(--text-accent); 
+        }
+        
+        .submenu { 
+            display: none; 
+            background: rgba(25, 25, 25, 0.95); 
+            border-left: 3px solid var(--border-main); 
+            margin-top: 8px; 
+            border-radius: 8px; 
+        }
+        
+        .submenu.show { 
+            display: block; 
+        }
+        
+        .submenu .menu-item { 
+            padding-left: 24px; 
+            font-size: 14px; 
+        }
+        
+        .theme-item { 
+            gap: 10px; 
+        }
+        
+        .theme-preview { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(255, 255, 255, 0.3); 
+            flex-shrink: 0; 
+        }
+        
+        .theme-bronze .theme-preview { 
+            background: linear-gradient(45deg, #8B7355, #CDBA96); 
+        }
+        
+        .theme-blue .theme-preview { 
+            background: linear-gradient(45deg, #3b82f6, #93c5fd); 
+        }
+        
+        .theme-green .theme-preview { 
+            background: linear-gradient(45deg, #16a34a, #86efac); 
+        }
+        
+        .theme-purple .theme-preview { 
+            background: linear-gradient(45deg, #a855f7, #c4b5fd); 
+        }
+        
+        .theme-red .theme-preview { 
+            background: linear-gradient(45deg, #dc2626, #fca5a5); 
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            margin-top: 15px; 
+            padding-right: 60px; 
+        }
+        
+        .header h1 { 
+            font-size: 22px; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            color: var(--text-primary); 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); 
+            line-height: 1.2; 
+        }
+        
+        .header p { 
+            color: var(--text-primary); 
+            font-size: 14px; 
+            font-weight: 400; 
+            font-style: italic; 
+            opacity: 0.9; 
+        }
+        
+        .display { 
+            background: var(--control-bg); 
+            border-radius: 18px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            min-height: 80px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            border: 2px solid var(--control-border); 
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6); 
+        }
+        
+        .display.result { 
+            background: linear-gradient(145deg, rgba(20, 60, 20, 0.9) 0%, rgba(30, 80, 30, 0.8) 100%); 
+            border-color: rgba(100, 150, 100, 0.6); 
+        }
+        
+        .display.error { 
+            background: linear-gradient(145deg, rgba(60, 20, 20, 0.9) 0%, rgba(80, 30, 30, 0.8) 100%); 
+            border-color: rgba(150, 100, 100, 0.6); 
+        }
+        
+        .display-text { 
+            font-size: 16px; 
+            font-weight: 500; 
+            line-height: 1.4; 
+            word-wrap: break-word; 
+        }
+        
+        .calculator-view { 
+            display: none; 
+        }
+        
+        .calculator-view.active { 
+            display: block; 
+        }
+        
+        .input-section { 
+            margin-bottom: 20px; 
+        }
+        
+        .input-label { 
+            display: block; 
+            margin-bottom: 12px; 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            font-size: 15px; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); 
+        }
+        
+        .date-input-container { 
+            margin-bottom: 18px; 
+        }
+        
+        .date-input, .number-input, .location-input { 
+            width: 100%; 
+            padding: 18px; 
+            border: 2px solid var(--control-border); 
+            border-radius: 12px; 
+            background: var(--control-bg); 
+            color: var(--text-primary); 
+            font-size: 18px; 
+            text-align: center; 
+            outline: none; 
+            font-weight: 500; 
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6); 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); 
+            -webkit-appearance: none; 
+            min-height: 56px; 
+        }
+        
+        .date-input:focus, .number-input:focus, .location-input:focus { 
+            border-color: var(--border-main); 
+        }
+        
+        .date-input::placeholder, .number-input::placeholder, .location-input::placeholder { 
+            color: rgba(180, 180, 180, 0.7); 
+            font-weight: 400; 
+        }
+        
+        .format-hint { 
+            font-size: 13px; 
+            color: var(--text-accent); 
+            text-align: center; 
+            margin-top: 8px; 
+            font-style: italic; 
+            line-height: 1.3; 
+        }
+        
+        .calculate-btn { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--button-bg); 
+            color: var(--text-primary); 
+            border: 2px solid var(--control-border); 
+            border-radius: 15px; 
+            font-size: 17px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4); 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9); 
+            -webkit-user-select: none; 
+            user-select: none; 
+            min-height: 56px; 
+            -webkit-appearance: none; 
+            margin-bottom: 15px; 
+        }
+        
+        .calculate-btn:active { 
+            transform: scale(0.98); 
+        }
+        
+        .examples { 
+            margin-top: 20px; 
+            background: var(--control-bg); 
+            border-radius: 15px; 
+            padding: 18px; 
+            border: 1px solid var(--control-border); 
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6); 
+        }
+        
+        .examples h3 { 
+            font-size: 16px; 
+            margin-bottom: 12px; 
+            color: var(--text-accent); 
+            font-weight: 600; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); 
+        }
+        
+        .examples ul { 
+            list-style: none; 
+            font-size: 14px; 
+            line-height: 1.4; 
+        }
+        
+        .examples li { 
+            margin-bottom: 8px; 
+            color: var(--text-primary); 
+            font-weight: 400; 
+            opacity: 0.9; 
+            cursor: pointer; 
+            padding: 8px 4px; 
+            border-radius: 6px; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            min-height: 44px; 
+            display: flex; 
+            align-items: center; 
+        }
+        
+        .examples li:active { 
+            color: var(--text-accent); 
+            background: rgba(255, 255, 255, 0.1); 
+        }
+        
+        .examples li::before { 
+            content: "→ "; 
+            color: var(--text-accent); 
+            font-weight: 700; 
+            margin-right: 8px; 
+        }
+        
+        .loading { 
+            display: inline-block; 
+            width: 18px; 
+            height: 18px; 
+            border: 2px solid rgba(245, 230, 211, 0.3); 
+            border-radius: 50%; 
+            border-top-color: var(--text-primary); 
+            animation: spin 1s linear infinite; 
+            margin-right: 8px; 
+        }
+        
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+                
+        .input-row { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 18px; 
+        }
+        
+        .input-col { 
+            flex: 1; 
+        }
+        
+        .back-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--control-bg);
+            color: var(--text-accent);
+            border: 2px solid var(--control-border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 20px;
+            -webkit-user-select: none; 
+            user-select: none;
+        }
+        
+        .back-button:active { 
+            transform: scale(0.98); 
+        }
+
+        /* PWA installation prompt styles */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--bg-container);
+            border: 2px solid var(--border-main);
+            border-radius: 12px;
+            padding: 15px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-prompt-text {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .install-btn, .dismiss-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--control-border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .install-btn {
+            background: var(--button-bg);
+            color: var(--text-primary);
+        }
+
+        .dismiss-btn {
+            background: var(--control-bg);
+            color: var(--text-accent);
+        }
+
+        /* Connection status indicator */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.offline {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            color: white;
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            color: white;
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Standalone app adjustments */
+        @media (display-mode: standalone) {
+            .connection-status {
+                top: 30px; /* Account for status bar in standalone mode */
+            }
+            
+            body {
+                padding-top: 5px; /* Extra padding for standalone */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 5px; }
+            .container { padding: 15px; border-radius: 15px; }
+            .header h1 { font-size: 20px; }
+            .date-input, .number-input, .location-input { font-size: 16px; padding: 16px; }
+            .calculate-btn { font-size: 16px; padding: 16px; }
+            .menu-dropdown { min-width: 320px; right: -10px; max-width: calc(100vw - 40px); }
+            .input-row { flex-direction: column; gap: 10px; }
+        }
     </style>
-</head><body>
+</head>
+<body>
     <!-- Connection status indicator -->
     <div id="connectionStatus" class="connection-status"></div>
 
@@ -2906,86 +3461,10 @@
                             hasDeferred: !!deferredPrompt,
                             dismissed: hasLocalStorage ? localStorage.getItem('pwa-install-dismissed') : null,
                             swSupported: 'serviceWorker' in navigator,
-                            standalone: window.matchMedia('(display-mode: standalone)').matches,
-                            https: location.protocol === 'https:',
-                            localhost: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+                            standalone: window.matchMedia('(display-mode: standalone)').matches
                         };
                         console.table(state);
-                        
-                        // Additional diagnostics
-                        console.log('🔍 PWA Install Diagnostics:');
-                        
-                        // Check manifest
-                        var manifestLink = document.querySelector('link[rel="manifest"]');
-                        console.log('📋 Manifest link:', manifestLink ? manifestLink.href : 'NOT FOUND');
-                        
-                        // Check SW registration
-                        if ('serviceWorker' in navigator) {
-                            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                                console.log('⚙️ Service Workers:', registrations.length + ' registered');
-                                registrations.forEach(function(reg, i) {
-                                    console.log('  SW' + i + ':', reg.scope, reg.active ? 'ACTIVE' : 'INACTIVE');
-                                });
-                            });
-                        }
-                        
-                        // Check security context
-                        console.log('🔒 Secure context:', window.isSecureContext);
-                        console.log('🌐 Protocol:', location.protocol);
-                        
-                        // PWA install criteria
-                        console.log('📱 PWA Install Criteria:');
-                        console.log('  ✅ HTTPS or localhost:', state.https || state.localhost);
-                        console.log('  ✅ Service Worker:', state.swSupported);
-                        console.log('  ✅ Manifest:', !!manifestLink);
-                        console.log('  ❓ User engagement: (cannot check programmatically)');
-                        
                         return state;
-                    },
-                    checkPWACriteria: function() {
-                        console.log('🔬 Checking PWA Installation Criteria...');
-                        
-                        var checks = {
-                            https: location.protocol === 'https:' || location.hostname === 'localhost',
-                            manifest: !!document.querySelector('link[rel="manifest"]'),
-                            serviceWorker: 'serviceWorker' in navigator,
-                            secureContext: window.isSecureContext
-                        };
-                        
-                        console.log('PWA Criteria Check:');
-                        Object.keys(checks).forEach(function(key) {
-                            console.log('  ' + (checks[key] ? '✅' : '❌') + ' ' + key + ':', checks[key]);
-                        });
-                        
-                        if (!checks.https) {
-                            console.log('🚨 PROBLEM: PWA requires HTTPS (except localhost)');
-                        }
-                        if (!checks.manifest) {
-                            console.log('🚨 PROBLEM: manifest.json link not found');
-                        }
-                        if (!checks.serviceWorker) {
-                            console.log('🚨 PROBLEM: Service Workers not supported');
-                        }
-                        
-                        // Try to fetch manifest
-                        var manifestLink = document.querySelector('link[rel="manifest"]');
-                        if (manifestLink) {
-                            fetch(manifestLink.href)
-                                .then(function(response) {
-                                    if (response.ok) {
-                                        return response.json();
-                                    }
-                                    throw new Error('Manifest fetch failed: ' + response.status);
-                                })
-                                .then(function(manifest) {
-                                    console.log('📋 Manifest loaded successfully:', manifest);
-                                })
-                                .catch(function(error) {
-                                    console.log('🚨 Manifest load error:', error);
-                                });
-                        }
-                        
-                        return checks;
                     }
                 };
                 
