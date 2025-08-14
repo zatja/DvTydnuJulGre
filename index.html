@@ -650,9 +650,40 @@
                     </div>
                 </div>
                 <div class="menu-section">
-                    <div class="menu-item" data-link="https://claude.ai">Created by Claude AI</div>
-                    <div class="menu-item" data-link="https://kalendar.beda.cz/kalendar-rozcestnik">Více o kalendářích</div>
-                </div>
+  <div class="menu-section-title" id="i18n-section-title">Jazyk</div>
+  <div class="menu-item has-submenu" id="languageMenu">🌐 Vybrat jazyk</div>
+  <div class="submenu" id="languageSubmenu">
+    <div class="menu-item" data-lang="cs">Čeština (cs)</div>
+    <div class="menu-item" data-lang="en">English (en)</div>
+    <div class="menu-item" data-lang="de">Deutsch (de)</div>
+    <div class="menu-item" data-lang="fr">Français (fr)</div>
+    <div class="menu-item" data-lang="es">Español (es)</div>
+    <div class="menu-item" data-lang="uk">Українська (uk)</div>
+    <div class="menu-item" data-lang="ru">Русский (ru)</div>
+  </div>
+</div>
+       <!-- Language (i18n) section -->
+<div class="menu-section">
+    <div class="menu-section-title" id="i18n-section-title">Jazyk</div>
+    <div class="menu-item has-submenu" id="languageMenu">🌐 Vybrat jazyk</div>
+    <div class="submenu" id="languageSubmenu">
+        <div class="menu-item" data-lang="cs">Čeština (cs)</div>
+        <div class="menu-item" data-lang="en">English (en)</div>
+        <div class="menu-item" data-lang="de">Deutsch (de)</div>
+        <div class="menu-item" data-lang="fr">Français (fr)</div>
+        <div class="menu-item" data-lang="es">Español (es)</div>
+        <div class="menu-item" data-lang="uk">Українська (uk)</div>
+        <div class="menu-item" data-lang="ru">Русский (ru)</div>
+    </div>
+</div>
+
+<div class="menu-section">
+    <div class="menu-item" data-link="https://claude.ai">Created by Claude AI</div>
+    <div class="menu-item" data-link="https://kalendar.beda.cz/kalendar-rozcestnik">Více o kalendářích</div>
+</div>
+</div>
+                
+                
             </div>
         </div>
 
@@ -2304,7 +2335,7 @@
         }
         
         // USNO Algorithm for Greenwich Mean Sidereal Time
-        var jd0 = Math.floor(getJulianDayNumber(utcDay, utcMonth, utcYear)) + 0.5; // Midnight JD
+        var jd0 = Math.floor(getJulianDayNumber(utcDay, utcMonth, utcYear)) - 0.5; // Midnight JD
         var H = utcHour + utcMinute / 60.0; // Hours since midnight UTC
         var DUT = jd0 - 2451545.0; // Days since J2000.0 epoch
         var T = DUT / 36525; // Centuries since J2000.0
@@ -3531,7 +3562,697 @@
     } else {
         initializeApp();
     }
-    
+// === i18n: slovník a mechanika (minimal invasive) ==========================
+var SUPPORTED_LANGS = ['cs','en','de','fr','es','uk','ru'];
+
+var I18N = {
+  cs: {
+    app: { title: 'Kalendářní kalkulátor - Rozšířený', version: 'Kalendářní kalkulátor v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 Den v týdnu',
+      version: 'Kalendářní kalkulátor v4.0 PWA',
+      moreCalcs: '🧮 Další výpočty',
+      astronomy: '🌟 Astronomické výpočty',
+      themesTitle: 'Barevná témata',
+      langTitle: 'Jazyk',
+      langPick: '🌐 Vybrat jazyk',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'Více o kalendářích' }
+    },
+    dayOfWeek: {
+      h1: '📅 Den v týdnu', p: 'Zjistěte den v týdnu pro jakékoliv datum v historii',
+      label: 'Zadejte datum:', placeholder: '1.1.1 nebo 15.3.44 nebo 01031989',
+      formats: 'Formáty: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Vypočítat', samples: '💡 Vyzkoušejte:', resultPlaceholder: 'Místo pro výsledek'
+    },
+    common: {
+      back: '← Zpět na hlavní menu',
+      calculating: 'Počítám...',
+      installed: '📱 Nainstalováno jako PWA',
+      web: '🌐 Webová verze',
+      online: '🌐 Online - synchronizováno',
+      offline: '📱 Offline - plně funkční',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Hledač roků', p: 'Najděte roky pro určitou kombinaci dne, měsíce a dne v týdnu',
+      day: 'Den v měsíci:', month: 'Měsíc:', dow: 'Den v týdnu:', btn: 'Najít roky',
+      dowOptions: ['Vyberte den','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota','Neděle'],
+      display: 'Nastavte parametry a zobrazte vyhovující roky'
+    },
+    // ... (další bloky ponecháme v češtině; překlady jsou níže v ostatních jazycích)
+  },
+  en: {
+    app: { title: 'Calendar Calculator - Extended', version: 'Calendar Calculator v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 Day of Week',
+      version: 'Calendar Calculator v4.0 PWA',
+      moreCalcs: '🧮 More Calculators',
+      astronomy: '🌟 Astronomy',
+      themesTitle: 'Color themes',
+      langTitle: 'Language',
+      langPick: '🌐 Choose language',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'More about calendars' }
+    },
+    dayOfWeek: {
+      h1: '📅 Day of Week', p: 'Find the weekday for any date in history',
+      label: 'Enter a date:', placeholder: '1.1.1 or 15.3.44 or 01031989',
+      formats: 'Formats: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Calculate', samples: '💡 Try:', resultPlaceholder: 'Result will appear here'
+    },
+    common: {
+      back: '← Back to main menu',
+      calculating: 'Calculating...',
+      installed: '📱 Installed as PWA',
+      web: '🌐 Web version',
+      online: '🌐 Online - synchronized',
+      offline: '📱 Offline - fully functional',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Year Finder', p: 'Find years for a given day, month and weekday',
+      day: 'Day of month:', month: 'Month:', dow: 'Weekday:', btn: 'Find years',
+      dowOptions: ['Select weekday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+      display: 'Set parameters and show matching years'
+    }
+  },
+  de: {
+    app: { title: 'Kalenderrechner – Erweitert', version: 'Kalenderrechner v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 Wochentag',
+      version: 'Kalenderrechner v4.0 PWA',
+      moreCalcs: '🧮 Weitere Rechner',
+      astronomy: '🌟 Astronomie',
+      themesTitle: 'Farbschemata',
+      langTitle: 'Sprache',
+      langPick: '🌐 Sprache wählen',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'Mehr über Kalender' }
+    },
+    dayOfWeek: {
+      h1: '📅 Wochentag', p: 'Ermitteln Sie den Wochentag für jedes Datum',
+      label: 'Datum eingeben:', placeholder: '1.1.1 oder 15.3.44 oder 01031989',
+      formats: 'Formate: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Berechnen', samples: '💡 Probieren:', resultPlaceholder: 'Ergebnis erscheint hier'
+    },
+    common: {
+      back: '← Zurück zum Hauptmenü',
+      calculating: 'Berechne...',
+      installed: '📱 Als PWA installiert',
+      web: '🌐 Webversion',
+      online: '🌐 Online – synchronisiert',
+      offline: '📱 Offline – vollständig funktionsfähig',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Jahresfinder', p: 'Finde Jahre für Tag, Monat und Wochentag',
+      day: 'Tag:', month: 'Monat:', dow: 'Wochentag:', btn: 'Jahre finden',
+      dowOptions: ['Wochentag wählen','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'],
+      display: 'Parameter einstellen und passende Jahre anzeigen'
+    }
+  },
+  fr: {
+    app: { title: 'Calculateur de calendrier – Étendu', version: 'Calculateur de calendrier v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 Jour de la semaine',
+      version: 'Calculateur de calendrier v4.0 PWA',
+      moreCalcs: '🧮 Plus de calculateurs',
+      astronomy: '🌟 Astronomie',
+      themesTitle: 'Thèmes',
+      langTitle: 'Langue',
+      langPick: '🌐 Choisir la langue',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'En savoir plus' }
+    },
+    dayOfWeek: {
+      h1: '📅 Jour de la semaine', p: 'Trouvez le jour pour n’importe quelle date',
+      label: 'Entrez une date :', placeholder: '1.1.1 ou 15.3.44 ou 01031989',
+      formats: 'Formats : 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Calculer', samples: '💡 Essayez :', resultPlaceholder: 'Le résultat apparaîtra ici'
+    },
+    common: {
+      back: '← Retour au menu principal',
+      calculating: 'Calcul en cours…',
+      installed: '📱 Installée comme PWA',
+      web: '🌐 Version Web',
+      online: '🌐 En ligne – synchronisé',
+      offline: '📱 Hors ligne – entièrement fonctionnel',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Chercheur d’années', p: 'Trouvez les années pour jour, mois et semaine',
+      day: 'Jour :', month: 'Mois :', dow: 'Jour :', btn: 'Trouver les années',
+      dowOptions: ['Choisir le jour','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'],
+      display: 'Définissez les paramètres et affichez les années correspondantes'
+    }
+  },
+  es: {
+    app: { title: 'Calculadora de Calendario – Ampliada', version: 'Calculadora de Calendario v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 Día de la semana',
+      version: 'Calculadora de Calendario v4.0 PWA',
+      moreCalcs: '🧮 Más calculadoras',
+      astronomy: '🌟 Astronomía',
+      themesTitle: 'Temas de color',
+      langTitle: 'Idioma',
+      langPick: '🌐 Elegir idioma',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'Más sobre calendarios' }
+    },
+    dayOfWeek: {
+      h1: '📅 Día de la semana', p: 'Obtenga el día para cualquier fecha',
+      label: 'Introduzca una fecha:', placeholder: '1.1.1 o 15.3.44 o 01031989',
+      formats: 'Formatos: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Calcular', samples: '💡 Pruebe:', resultPlaceholder: 'Aquí aparecerá el resultado'
+    },
+    common: {
+      back: '← Volver al menú principal',
+      calculating: 'Calculando...',
+      installed: '📱 Instalado como PWA',
+      web: '🌐 Versión web',
+      online: '🌐 En línea – sincronizado',
+      offline: '📱 Sin conexión – totalmente funcional',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Buscador de años', p: 'Encuentre años para día, mes y semana',
+      day: 'Día:', month: 'Mes:', dow: 'Día de semana:', btn: 'Buscar años',
+      dowOptions: ['Seleccione día','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+      display: 'Defina parámetros y muestre años coincidentes'
+    }
+  },
+  uk: {
+    app: { title: 'Календарний калькулятор — Розширений', version: 'Календарний калькулятор v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 День тижня',
+      version: 'Календарний калькулятор v4.0 PWA',
+      moreCalcs: '🧮 Інші обчислення',
+      astronomy: '🌟 Астрономія',
+      themesTitle: 'Колірні теми',
+      langTitle: 'Мова',
+      langPick: '🌐 Обрати мову',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'Більше про календарі' }
+    },
+    dayOfWeek: {
+      h1: '📅 День тижня', p: 'Знайдіть день тижня для будь-якої дати',
+      label: 'Введіть дату:', placeholder: '1.1.1 або 15.3.44 або 01031989',
+      formats: 'Формати: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Обчислити', samples: '💡 Спробуйте:', resultPlaceholder: 'Тут з’явиться результат'
+    },
+    common: {
+      back: '← Назад до головного меню',
+      calculating: 'Обчислення…',
+      installed: '📱 Встановлено як PWA',
+      web: '🌐 Веб-версія',
+      online: '🌐 Онлайн — синхронізовано',
+      offline: '📱 Оффлайн — повністю працює',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Пошук років', p: 'Знайдіть роки за днем, місяцем і днем тижня',
+      day: 'День:', month: 'Місяць:', dow: 'День тижня:', btn: 'Знайти роки',
+      dowOptions: ['Оберіть день','Понеділок','Вівторок','Середа','Четвер','П’ятниця','Субота','Неділя'],
+      display: 'Задайте параметри та перегляньте відповідні роки'
+    }
+  },
+  ru: {
+    app: { title: 'Календарный калькулятор — Расширенный', version: 'Календарный калькулятор v4.0 PWA' },
+    menu: {
+      dayOfWeek: '📅 День недели',
+      version: 'Календарный калькулятор v4.0 PWA',
+      moreCalcs: '🧮 Прочие вычисления',
+      astronomy: '🌟 Астрономия',
+      themesTitle: 'Цветовые темы',
+      langTitle: 'Язык',
+      langPick: '🌐 Выбрать язык',
+      links: { createdBy: 'Created by Claude AI', moreCalendars: 'Подробнее о календарях' }
+    },
+    dayOfWeek: {
+      h1: '📅 День недели', p: 'Определите день недели для любой даты',
+      label: 'Введите дату:', placeholder: '1.1.1 или 15.3.44 или 01031989',
+      formats: 'Форматы: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989',
+      calc: 'Вычислить', samples: '💡 Попробуйте:', resultPlaceholder: 'Здесь появится результат'
+    },
+    common: {
+      back: '← Назад в главное меню',
+      calculating: 'Вычисление…',
+      installed: '📱 Установлено как PWA',
+      web: '🌐 Веб-версия',
+      online: '🌐 Онлайн — синхронизировано',
+      offline: '📱 Оффлайн — полностью функционирует',
+      errorPrefix: '⚠️ '
+    },
+    yearFinder: { h1: '🔍 Поиск лет', p: 'Найдите годы по дню, месяцу и дню недели',
+      day: 'День:', month: 'Месяц:', dow: 'День недели:', btn: 'Найти годы',
+      dowOptions: ['Выберите день','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'],
+      display: 'Задайте параметры и покажите подходящие годы'
+    }
+  }
+};
+
+// map: který prvek se překládá a jakou hodnotou
+var I18N_MAP = [
+  // Menu
+  { sel: '#dayOfWeekMenu', key: 'menu.dayOfWeek', prop: 'text' },
+  { sel: '#versionButton', key: 'menu.version', prop: 'text' },
+  { sel: '#calculatorsMenu', key: 'menu.moreCalcs', prop: 'text' },
+  { sel: '#astronomyMenu', key: 'menu.astronomy', prop: 'text' },
+  { sel: '#i18n-section-title', key: 'menu.langTitle', prop: 'text' },
+  { sel: '#languageMenu', key: 'menu.langPick', prop: 'text' },
+
+  // Day of Week view
+  { sel: '#dayOfWeekCalculator .header h1', key: 'dayOfWeek.h1', prop: 'text' },
+  { sel: '#dayOfWeekCalculator .header p', key: 'dayOfWeek.p', prop: 'text' },
+  { sel: 'label[for="dateInput"]', key: 'dayOfWeek.label', prop: 'text' },
+  { sel: '#dateInput', key: 'dayOfWeek.placeholder', prop: 'placeholder' },
+  { sel: '#dayOfWeekCalculator .format-hint', key: 'dayOfWeek.formats', prop: 'text' },
+  { sel: '#calculateBtn', key: 'dayOfWeek.calc', prop: 'text' },
+  { sel: '#dayOfWeekCalculator .examples h3', key: 'dayOfWeek.samples', prop: 'text' }
+];
+
+// Helpery
+function i18nGet(lang, path, fallback) {
+  var obj = I18N[lang] || I18N.cs;
+  var parts = path.split('.');
+  for (var i = 0; i < parts.length; i++) {
+    obj = obj && obj[parts[i]];
+  }
+  return (obj != null ? obj : (fallback != null ? fallback : path));
+}
+
+function applyI18n(lang) {
+  if (SUPPORTED_LANGS.indexOf(lang) === -1) lang = 'cs';
+  document.documentElement.lang = lang;
+  document.title = i18nGet(lang, 'app.title');
+
+  // přepiš běžné prvky
+  I18N_MAP.forEach(function(map){
+    var el = document.querySelector(map.sel);
+    if (!el) return;
+    if (map.prop === 'placeholder') el.setAttribute('placeholder', i18nGet(lang, map.key));
+    else el.textContent = i18nGet(lang, map.key);
+  });
+
+  // Status lišty (online/offline) a výchozí text výsledku
+  var statusEl = document.getElementById('connectionStatus');
+  if (statusEl) {
+    if (navigator.onLine) statusEl.textContent = i18nGet(lang, 'common.online');
+    else statusEl.textContent = i18nGet(lang, 'common.offline');
+  }
+  var displayEl = document.querySelector('#dayOfWeekCalculator #display .display-text');
+  if (displayEl) displayEl.textContent = i18nGet(lang, 'dayOfWeek.resultPlaceholder');
+
+  // tlačítko zpět (v sekundárních pohledech)
+  var backButtons = document.querySelectorAll('.back-button');
+  for (var i=0;i<backButtons.length;i++){
+    backButtons[i].textContent = i18nGet(lang, 'common.back');
+  }
+
+  // Select DOW ve Hledači roků (pokud je stránka přepnuta)
+  var dowSel = document.getElementById('yearFinderDayOfWeek');
+  if (dowSel) {
+    var opts = i18nGet(lang,'yearFinder.dowOptions');
+    if (Array.isArray(opts) && dowSel.options.length >= 8) {
+      dowSel.options[0].text = opts[0];
+      dowSel.options[1].text = opts[1];
+      dowSel.options[2].text = opts[2];
+      dowSel.options[3].text = opts[3];
+      dowSel.options[4].text = opts[4];
+      dowSel.options[5].text = opts[5];
+      dowSel.options[6].text = opts[6];
+      dowSel.options[7].text = opts[7];
+    }
+  }
+}
+
+// jazyk – detekce a uložení
+function getStoredLang(){
+  try { return (hasLocalStorage && localStorage.getItem('app-lang')) || null; } catch(e){ return null; }
+}
+function setStoredLang(lang){
+  if (!hasLocalStorage) return;
+  try { localStorage.setItem('app-lang', lang); } catch(e){}
+}
+function getInitialLang(){
+  var s = getStoredLang();
+  if (s && SUPPORTED_LANGS.indexOf(s)>-1) return s;
+  var n = (navigator.language || navigator.userLanguage || 'cs').toLowerCase().slice(0,2);
+  return SUPPORTED_LANGS.indexOf(n)>-1 ? n : 'cs';
+}
+
+// Připojit do stávajících handlerů
+document.addEventListener('DOMContentLoaded', function(){
+  var lang = getInitialLang();
+  updateManifestForLang(lang);
+  applyI18n(lang);
+updateManifestForLang(newLang);
+  // rozklikávání submenu "Jazyk"
+  var langMenu = document.getElementById('languageMenu');
+  var langSub = document.getElementById('languageSubmenu');
+  if (langMenu && langSub) {
+    langMenu.addEventListener('click', function(){ toggleSubmenu('languageSubmenu'); });
+    var items = langSub.querySelectorAll('.menu-item[data-lang]');
+    for (var i=0;i<items.length;i++) {
+      items[i].addEventListener('click', function(ev){
+        var newLang = ev.currentTarget.getAttribute('data-lang');
+        setStoredLang(newLang);
+        applyI18n(newLang);
+        // zavřít dropdown po volbě
+        var dd = document.getElementById('menuDropdown');
+        if (dd) { dd.classList.remove('show'); dd.style.display='none'; isMenuOpen=false; }
+      });
+    }
+  }
+});
+
+// Volání v místech, kde zobrazujete texty ve skriptu:
+var _showLoading = showLoading;
+showLoading = function(){
+  var display = getCurrentDisplay();
+  if (display) {
+    display.className = 'display';
+    var lang = getStoredLang() || getInitialLang();
+    display.innerHTML = '<div class="display-text"><span class="loading"></span>'+ i18nGet(lang,'common.calculating') +'</div>';
+  }
+};
+
+// Dynamické přepnutí <link rel="manifest"> podle jazyka (pokud soubor existuje)
+function updateManifestForLang(lang) {
+  var link = document.querySelector('link[rel="manifest"]');
+  if (!link) return;
+  // Kandidát např. manifest.en.json
+  var candidate = 'manifest.' + lang + '.json';
+  fetch(candidate, { cache: 'no-store' }).then(function(r){
+    if (r.ok) {
+      link.setAttribute('href', candidate);
+    } else {
+      // fallback na výchozí manifest.json
+      link.setAttribute('href', 'manifest.json');
+    }
+  }).catch(function(){
+    link.setAttribute('href', 'manifest.json');
+  });
+}
+
+// (volitelně lze přidat překlady do showVersion, showError atd., analogicky)    
+})();
+</script>
+<script>
+const translations = {
+  cs: {
+    title: "Kalendářní kalkulátor",
+    subtitle: "Komplexní kalendářní kalkulátor s astronomickými funkcemi",
+    offlineNotice: "Aplikace není k dispozici offline, načtěte ji prosím online.",
+    // ... doplnit všechny další texty v UI
+  },
+  en: {
+    title: "Calendar Calculator",
+    subtitle: "Comprehensive calendar calculator with astronomy features",
+    offlineNotice: "App not available offline, please load it online first.",
+  },
+  de: {
+    title: "Kalenderrechner",
+    subtitle: "Umfassender Kalenderrechner mit Astronomie-Funktionen",
+    offlineNotice: "App offline nicht verfügbar, bitte zuerst online laden.",
+  },
+  fr: {
+    title: "Calculateur de calendrier",
+    subtitle: "Calculateur de calendrier complet avec fonctions d’astronomie",
+    offlineNotice: "Application non disponible hors ligne, veuillez la charger en ligne d'abord.",
+  },
+  es: {
+    title: "Calculadora de Calendario",
+    subtitle: "Calculadora de calendario completa con funciones de astronomía",
+    offlineNotice: "Aplicación no disponible sin conexión, cárguela en línea primero.",
+  },
+  uk: {
+    title: "Календарний калькулятор",
+    subtitle: "Повний календарний калькулятор з астрономічними функціями",
+    offlineNotice: "Додаток недоступний офлайн, завантажте його онлайн спочатку.",
+  },
+  ru: {
+    title: "Календарный калькулятор",
+    subtitle: "Полный календарный калькулятор с астрономическими функциями",
+    offlineNotice: "Приложение недоступно офлайн, загрузите его онлайн сначала.",
+  }
+};
+
+function updateLanguage(lang) {
+  const dict = translations[lang] || translations.cs;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key]) el.textContent = dict[key];
+  });
+
+  // přepnutí manifestu
+  const manifestLink = document.querySelector('link[rel="manifest"]');
+  if (manifestLink) {
+    manifestLink.setAttribute("href", `manifest.${lang}.json`);
+  }
+}
+</script>
+
+<!-- i18n engine & manifest switcher -->
+<script>
+(function(){
+  var hasLocalStorage = (function(){ try { var t='__t__'; localStorage.setItem(t,'1'); localStorage.removeItem(t); return true; } catch(e){ return false; } })();
+  function getCurrentDisplay(){ return document.querySelector('.view.active .display') || document.querySelector('#display'); }
+  function toggleSubmenu(id){ var el = document.getElementById(id); if (!el) return; var s = el.style.display; el.style.display = (s && s !== 'none') ? 'none' : 'block'; }
+
+  var SUPPORTED_LANGS = ['cs','en','de','fr','es','uk','ru'];
+
+  var I18N = {
+    cs: {
+      app:{ title:'Kalendářní kalkulátor - Rozšířený', version:'Kalendářní kalkulátor v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 Den v týdnu', version:'Kalendářní kalkulátor v4.0 PWA', moreCalcs:'🧮 Další výpočty', astronomy:'🌟 Astronomické výpočty', themesTitle:'Barevná témata', langTitle:'Jazyk', langPick:'🌐 Vybrat jazyk', links:{ createdBy:'Created by Claude AI', moreCalendars:'Více o kalendářích' } },
+      dayOfWeek:{ h1:'📅 Den v týdnu', p:'Zjistěte den v týdnu pro jakékoliv datum v historii', label:'Zadejte datum:', placeholder:'1.1.1 nebo 15.3.44 nebo 01031989', formats:'Formáty: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Vypočítat', samples:'💡 Vyzkoušejte:', resultPlaceholder:'Místo pro výsledek' },
+      common:{ back:'← Zpět na hlavní menu', calculating:'Počítám...', installed:'📱 Nainstalováno jako PWA', web:'🌐 Webová verze', online:'🌐 Online - synchronizováno', offline:'📱 Offline - plně funkční', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Hledač roků', p:'Najděte roky pro určitou kombinaci dne, měsíce a dne v týdnu', day:'Den v měsíci:', month:'Měsíc:', dow:'Den v týdnu:', btn:'Najít roky', dowOptions:['Vyberte den','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota','Neděle'], display:'Nastavte parametry a zobrazte vyhovující roky' },
+      install:{ prompt:'Chcete nainstalovat tuto aplikaci jako PWA?', installBtn:'Nainstalovat', dismissBtn:'Zavřít' },
+      moon:{ h1:'🌙 Fáze Měsíce', p:'Zjistěte fázi Měsíce pro zadané datum', date:'Datum:', btn:'Zjistit fázi', resultPlaceholder:'Místo pro výsledek fáze' },
+      dateMath:{ h1:'🧮 Kalendářová aritmetika', p:'Sčítejte/odčítejte dny nebo počítejte rozdíl mezi daty', type:'Operace:', addOp:'Přičíst/odečíst dny', diffOp:'Rozdíl dvou dat', date1:'Datum 1:', days:'Počet dnů:', date2:'Datum 2:', date3:'Datum 2:', btn:'Vypočítat', resultPlaceholder:'Zde se zobrazí výsledek' },
+      sun:{ h1:'☀️ Sluneční události', p:'Východ/západ Slunce pro místo a datum', date:'Datum:', lat:'Zem. šířka:', lon:'Zem. délka:', btn:'Spočítat', resultPlaceholder:'Zde se zobrazí časy' },
+      planet:{ h1:'🪐 Pozice planet', p:'Zobrazí přibližné polohy vybraných planet pro daný čas', date:'Datum:', time:'Čas (UTC):', tz:'Časové pásmo:', btn:'Vypočítat', resultPlaceholder:'Zde se zobrazí výsledky' },
+      eclipses:{ h1:'🌘 Zatmění', p:'Přehled zatmění pro daný rok', year:'Rok:', btn:'Zobrazit', resultPlaceholder:'Zde se objeví seznam' },
+      sidereal:{ h1:'⭐ Hvězdný čas', p:'Výpočet místního hvězdného času', date:'Datum:', time:'Čas (UTC):', dst:'Letní čas (ano/ne):', lon:'Zem. délka:', btn:'Spočítat', resultPlaceholder:'Zde se zobrazí LST' }
+    },
+    en: {
+      app:{ title:'Calendar Calculator - Extended', version:'Calendar Calculator v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 Day of Week', version:'Calendar Calculator v4.0 PWA', moreCalcs:'🧮 More Calculators', astronomy:'🌟 Astronomy', themesTitle:'Color themes', langTitle:'Language', langPick:'🌐 Choose language', links:{ createdBy:'Created by Claude AI', moreCalendars:'More about calendars' } },
+      dayOfWeek:{ h1:'📅 Day of Week', p:'Find the weekday for any date in history', label:'Enter a date:', placeholder:'1.1.1 or 15.3.44 or 01031989', formats:'Formats: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Calculate', samples:'💡 Try:', resultPlaceholder:'Result will appear here' },
+      common:{ back:'← Back to main menu', calculating:'Calculating...', installed:'📱 Installed as PWA', web:'🌐 Web version', online:'🌐 Online - synchronized', offline:'📱 Offline - fully functional', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Year Finder', p:'Find years for a given day, month and weekday', day:'Day of month:', month:'Month:', dow:'Weekday:', btn:'Find years', dowOptions:['Select weekday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], display:'Set parameters and show matching years' },
+      install:{ prompt:'Install this app as a PWA?', installBtn:'Install', dismissBtn:'Close' },
+      moon:{ h1:'🌙 Moon Phases', p:'Get the Moon phase for the selected date', date:'Date:', btn:'Get phase', resultPlaceholder:'Phase result will appear here' },
+      dateMath:{ h1:'🧮 Date Math', p:'Add/subtract days or compute difference between dates', type:'Operation:', addOp:'Add/Subtract days', diffOp:'Difference of two dates', date1:'Date 1:', days:'Days:', date2:'Date 2:', date3:'Date 2:', btn:'Calculate', resultPlaceholder:'Result will appear here' },
+      sun:{ h1:'☀️ Sun Events', p:'Sunrise/Sunset for a place and date', date:'Date:', lat:'Latitude:', lon:'Longitude:', btn:'Compute', resultPlaceholder:'Times will appear here' },
+      planet:{ h1:'🪐 Planet Positions', p:'Approximate positions of selected planets for given time', date:'Date:', time:'Time (UTC):', tz:'Time zone:', btn:'Calculate', resultPlaceholder:'Results will appear here' },
+      eclipses:{ h1:'🌘 Eclipses', p:'Overview of eclipses for the given year', year:'Year:', btn:'Show', resultPlaceholder:'List will appear here' },
+      sidereal:{ h1:'⭐ Sidereal Time', p:'Compute local sidereal time', date:'Date:', time:'Time (UTC):', dst:'DST (yes/no):', lon:'Longitude:', btn:'Compute', resultPlaceholder:'LST will appear here' }
+    },
+    de: {
+      app:{ title:'Kalenderrechner – Erweitert', version:'Kalenderrechner v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 Wochentag', version:'Kalenderrechner v4.0 PWA', moreCalcs:'🧮 Weitere Rechner', astronomy:'🌟 Astronomie', themesTitle:'Farbschemata', langTitle:'Sprache', langPick:'🌐 Sprache wählen', links:{ createdBy:'Created by Claude AI', moreCalendars:'Mehr über Kalender' } },
+      dayOfWeek:{ h1:'📅 Wochentag', p:'Ermitteln Sie den Wochentag für jedes Datum', label:'Datum eingeben:', placeholder:'1.1.1 oder 15.3.44 oder 01031989', formats:'Formate: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Berechnen', samples:'💡 Probieren:', resultPlaceholder:'Ergebnis erscheint hier' },
+      common:{ back:'← Zurück zum Hauptmenü', calculating:'Berechne...', installed:'📱 Als PWA installiert', web:'🌐 Webversion', online:'🌐 Online – synchronisiert', offline:'📱 Offline – vollständig funktionsfähig', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Jahresfinder', p:'Finde Jahre für Tag, Monat und Wochentag', day:'Tag:', month:'Monat:', dow:'Wochentag:', btn:'Jahre finden', dowOptions:['Wochentag wählen','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'], display:'Parameter einstellen und passende Jahre anzeigen' },
+      install:{ prompt:'Diese App als PWA installieren?', installBtn:'Installieren', dismissBtn:'Schließen' },
+      moon:{ h1:'🌙 Mondphasen', p:'Mondphase für ein Datum', date:'Datum:', btn:'Phase ermitteln', resultPlaceholder:'Ergebnis erscheint hier' },
+      dateMath:{ h1:'🧮 Datumsarithmetik', p:'Tage addieren/subtrahieren oder Differenz', type:'Operation:', addOp:'Tage add./subtr.', diffOp:'Differenz zweier Daten', date1:'Datum 1:', days:'Tage:', date2:'Datum 2:', date3:'Datum 2:', btn:'Berechnen', resultPlaceholder:'Ergebnis erscheint hier' },
+      sun:{ h1:'☀️ Sonnenereignisse', p:'Sonnenauf-/untergang', date:'Datum:', lat:'Breite:', lon:'Länge:', btn:'Berechnen', resultPlaceholder:'Zeiten erscheinen hier' },
+      planet:{ h1:'🪐 Planetenpositionen', p:'Positionen für Zeitpunkt', date:'Datum:', time:'Zeit (UTC):', tz:'Zeitzone:', btn:'Berechnen', resultPlaceholder:'Ergebnisse erscheinen hier' },
+      eclipses:{ h1:'🌘 Finsternisse', p:'Übersicht für Jahr', year:'Jahr:', btn:'Anzeigen', resultPlaceholder:'Liste erscheint hier' },
+      sidereal:{ h1:'⭐ Sternzeit', p:'Lokale Sternzeit', date:'Datum:', time:'Zeit (UTC):', dst:'Sommerzeit (ja/nein):', lon:'Länge:', btn:'Berechnen', resultPlaceholder:'LST erscheint hier' }
+    },
+    fr: {
+      app:{ title:'Calculateur de calendrier – Étendu', version:'Calculateur de calendrier v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 Jour de la semaine', version:'Calculateur de calendrier v4.0 PWA', moreCalcs:'🧮 Plus de calculateurs', astronomy:'🌟 Astronomie', themesTitle:'Thèmes', langTitle:'Langue', langPick:'🌐 Choisir la langue', links:{ createdBy:'Created by Claude AI', moreCalendars:'En savoir plus' } },
+      dayOfWeek:{ h1:'📅 Jour de la semaine', p:'Trouvez le jour pour n’importe quelle date', label:'Entrez une date :', placeholder:'1.1.1 ou 15.3.44 ou 01031989', formats:'Formats : 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Calculer', samples:'💡 Essayez :', resultPlaceholder:'Le résultat apparaîtra ici' },
+      common:{ back:'← Retour au menu principal', calculating:'Calcul en cours…', installed:'📱 Installée comme PWA', web:'🌐 Version Web', online:'🌐 En ligne – synchronisé', offline:'📱 Hors ligne – entièrement fonctionnel', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Chercheur d’années', p:'Trouvez les années pour jour, mois et semaine', day:'Jour :', month:'Mois :', dow:'Jour :', btn:'Trouver les années', dowOptions:['Choisir le jour','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'], display:'Définissez les paramètres et affichez les années correspondantes' },
+      install:{ prompt:'Installer cette appli en PWA ?', installBtn:'Installer', dismissBtn:'Fermer' },
+      moon:{ h1:'🌙 Phases de la Lune', p:'Phase de la Lune pour une date', date:'Date :', btn:'Obtenir la phase', resultPlaceholder:'Le résultat apparaîtra ici' },
+      dateMath:{ h1:'🧮 Arithmétique de dates', p:'Ajouter/soustraire des jours ou la différence', type:'Opération :', addOp:'Ajouter/Soustraire des jours', diffOp:'Différence de deux dates', date1:'Date 1 :', days:'Jours :', date2:'Date 2 :', date3:'Date 2 :', btn:'Calculer', resultPlaceholder:'Le résultat apparaîtra ici' },
+      sun:{ h1:'☀️ Événements solaires', p:'Lever/Coucher du soleil', date:'Date :', lat:'Latitude :', lon:'Longitude :', btn:'Calculer', resultPlaceholder:'Les heures apparaîtront ici' },
+      planet:{ h1:'🪐 Positions des planètes', p:'Positions approximatives', date:'Date :', time:'Heure (UTC) :', tz:'Fuseau :', btn:'Calculer', resultPlaceholder:'Les résultats apparaîtront ici' },
+      eclipses:{ h1:'🌘 Éclipses', p:'Aperçu pour l’année', year:'Année :', btn:'Afficher', resultPlaceholder:'La liste apparaîtra ici' },
+      sidereal:{ h1:'⭐ Temps sidéral', p:'Calcul du temps sidéral local', date:'Date :', time:'Heure (UTC) :', dst:'Heure d’été (oui/non) :', lon:'Longitude :', btn:'Calculer', resultPlaceholder:'Le LST apparaîtra ici' }
+    },
+    es: {
+      app:{ title:'Calculadora de Calendario – Ampliada', version:'Calculadora de Calendario v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 Día de la semana', version:'Calculadora de Calendario v4.0 PWA', moreCalcs:'🧮 Más calculadoras', astronomy:'🌟 Astronomía', themesTitle:'Temas de color', langTitle:'Idioma', langPick:'🌐 Elegir idioma', links:{ createdBy:'Created by Claude AI', moreCalendars:'Más sobre calendarios' } },
+      dayOfWeek:{ h1:'📅 Día de la semana', p:'Obtenga el día para cualquier fecha', label:'Introduzca una fecha:', placeholder:'1.1.1 o 15.3.44 o 01031989', formats:'Formatos: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Calcular', samples:'💡 Pruebe:', resultPlaceholder:'Aquí aparecerá el resultado' },
+      common:{ back:'← Volver al menú principal', calculating:'Calculando...', installed:'📱 Instalado como PWA', web:'🌐 Versión web', online:'🌐 En línea – sincronizado', offline:'📱 Sin conexión – totalmente funcional', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Buscador de años', p:'Encuentre años para día, mes y semana', day:'Día:', month:'Mes:', dow:'Día de semana:', btn:'Buscar años', dowOptions:['Seleccione día','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'], display:'Defina parámetros y muestre años coincidentes' },
+      install:{ prompt:'¿Instalar esta app como PWA?', installBtn:'Instalar', dismissBtn:'Cerrar' },
+      moon:{ h1:'🌙 Fases de la Luna', p:'Fase lunar para una fecha', date:'Fecha:', btn:'Ver fase', resultPlaceholder:'El resultado aparecerá aquí' },
+      dateMath:{ h1:'🧮 Aritmética de fechas', p:'Sumar/restar días o diferencia', type:'Operación:', addOp:'Sumar/Restar días', diffOp:'Diferencia de dos fechas', date1:'Fecha 1:', days:'Días:', date2:'Fecha 2:', date3:'Fecha 2:', btn:'Calcular', resultPlaceholder:'El resultado aparecerá aquí' },
+      sun:{ h1:'☀️ Eventos solares', p:'Amanecer/Atardecer', date:'Fecha:', lat:'Latitud:', lon:'Longitud:', btn:'Calcular', resultPlaceholder:'Los horarios aparecerán aquí' },
+      planet:{ h1:'🪐 Posiciones de planetas', p:'Posiciones aproximadas', date:'Fecha:', time:'Hora (UTC):', tz:'Zona horaria:', btn:'Calcular', resultPlaceholder:'Los resultados aparecerán aquí' },
+      eclipses:{ h1:'🌘 Eclipses', p:'Resumen para el año', year:'Año:', btn:'Mostrar', resultPlaceholder:'La lista aparecerá aquí' },
+      sidereal:{ h1:'⭐ Tiempo sideral', p:'Cálculo de LST', date:'Fecha:', time:'Hora (UTC):', dst:'Horario de verano (sí/no):', lon:'Longitud:', btn:'Calcular', resultPlaceholder:'El LST aparecerá aquí' }
+    },
+    uk: {
+      app:{ title:'Календарний калькулятор — Розширений', version:'Календарний калькулятор v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 День тижня', version:'Календарний калькулятор v4.0 PWA', moreCalcs:'🧮 Інші обчислення', astronomy:'🌟 Астрономія', themesTitle:'Колірні теми', langTitle:'Мова', langPick:'🌐 Обрати мову', links:{ createdBy:'Created by Claude AI', moreCalendars:'Більше про календарі' } },
+      dayOfWeek:{ h1:'📅 День тижня', p:'Знайдіть день тижня для будь-якої дати', label:'Введіть дату:', placeholder:'1.1.1 або 15.3.44 або 01031989', formats:'Формати: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Обчислити', samples:'💡 Спробуйте:', resultPlaceholder:'Тут з’явиться результат' },
+      common:{ back:'← Назад до головного меню', calculating:'Обчислення…', installed:'📱 Встановлено як PWA', web:'🌐 Веб-версія', online:'🌐 Онлайн — синхронізовано', offline:'📱 Оффлайн — повністю працює', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Пошук років', p:'Знайдіть роки за днем, місяцем і днем тижня', day:'День:', month:'Місяць:', dow:'День тижня:', btn:'Знайти роки', dowOptions:['Оберіть день','Понеділок','Вівторок','Середа','Четвер','П’ятниця','Субота','Неділя'], display:'Задайте параметри та перегляньте відповідні роки' },
+      install:{ prompt:'Встановити як PWA?', installBtn:'Встановити', dismissBtn:'Закрити' },
+      moon:{ h1:'🌙 Фази Місяця', p:'Фаза Місяця для дати', date:'Дата:', btn:'Отримати фазу', resultPlaceholder:'Результат з’явиться тут' },
+      dateMath:{ h1:'🧮 Обчислення дат', p:'Додавати/віднімати дні або різниця', type:'Операція:', addOp:'Додати/Відняти дні', diffOp:'Різниця двох дат', date1:'Дата 1:', days:'Дні:', date2:'Дата 2:', date3:'Дата 2:', btn:'Обчислити', resultPlaceholder:'Результат з’явиться тут' },
+      sun:{ h1:'☀️ Сонячні події', p:'Схід/Захід Сонця', date:'Дата:', lat:'Широта:', lon:'Довгота:', btn:'Обчислити', resultPlaceholder:'Часи з’являться тут' },
+      planet:{ h1:'🪐 Положення планет', p:'Приблизні положення', date:'Дата:', time:'Час (UTC):', tz:'Часовий пояс:', btn:'Обчислити', resultPlaceholder:'Результати з’являться тут' },
+      eclipses:{ h1:'🌘 Затемнення', p:'Огляд для року', year:'Рік:', btn:'Показати', resultPlaceholder:'Список з’явиться тут' },
+      sidereal:{ h1:'⭐ Сидеричний час', p:'Обчислення місцевого сидеричного часу', date:'Дата:', time:'Час (UTC):', dst:'Літній час (так/ні):', lon:'Довгота:', btn:'Обчислити', resultPlaceholder:'LST з’явиться тут' }
+    },
+    ru: {
+      app:{ title:'Календарный калькулятор — Расширенный', version:'Календарный калькулятор v4.0 PWA' },
+      menu:{ dayOfWeek:'📅 День недели', version:'Календарный калькулятор v4.0 PWA', moreCalcs:'🧮 Прочие вычисления', astronomy:'🌟 Астрономия', themesTitle:'Цветовые темы', langTitle:'Язык', langPick:'🌐 Выбрать язык', links:{ createdBy:'Created by Claude AI', moreCalendars:'Подробнее о календарях' } },
+      dayOfWeek:{ h1:'📅 День недели', p:'Определите день недели для любой даты', label:'Введите дату:', placeholder:'1.1.1 или 15.3.44 или 01031989', formats:'Форматы: 1.1.1 • 15.3.44 • 1989 • 1/3/1989 • 01031989', calc:'Вычислить', samples:'💡 Попробуйте:', resultPlaceholder:'Здесь появится результат' },
+      common:{ back:'← Назад в главное меню', calculating:'Вычисление…', installed:'📱 Установлено как PWA', web:'🌐 Веб-версия', online:'🌐 Онлайн — синхронизировано', offline:'📱 Оффлайн — полностью функционирует', errorPrefix:'⚠️ ' },
+      yearFinder:{ h1:'🔍 Поиск лет', p:'Найдите годы по дню, месяцу и дню недели', day:'День:', month:'Месяц:', dow:'День недели:', btn:'Найти годы', dowOptions:['Выберите день','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'], display:'Задайте параметры и покажите подходящие годы' },
+      install:{ prompt:'Установить как PWA?', installBtn:'Установить', dismissBtn:'Закрыть' },
+      moon:{ h1:'🌙 Фазы Луны', p:'Фаза Луны для даты', date:'Дата:', btn:'Показать фазу', resultPlaceholder:'Результат появится здесь' },
+      dateMath:{ h1:'🧮 Арифметика дат', p:'Сложение/вычитание дней или разница', type:'Операция:', addOp:'Добавить/Вычесть дни', diffOp:'Разница двух дат', date1:'Дата 1:', days:'Дни:', date2:'Дата 2:', date3:'Дата 2:', btn:'Вычислить', resultPlaceholder:'Результат появится здесь' },
+      sun:{ h1:'☀️ Солнечные события', p:'Восход/Закат', date:'Дата:', lat:'Широта:', lon:'Долгота:', btn:'Вычислить', resultPlaceholder:'Время появится здесь' },
+      planet:{ h1:'🪐 Положения планет', p:'Приблизительные положения', date:'Дата:', time:'Время (UTC):', tz:'Часовой пояс:', btn:'Вычислить', resultPlaceholder:'Результаты появятся здесь' },
+      eclipses:{ h1:'🌘 Затмения', p:'Обзор для года', year:'Год:', btn:'Показать', resultPlaceholder:'Список появится здесь' },
+      sidereal:{ h1:'⭐ Звёздное время', p:'Вычисление местного звёздного времени', date:'Дата:', time:'Время (UTC):', dst:'Летнее время (да/нет):', lon:'Долгота:', btn:'Вычислить', resultPlaceholder:'LST появится здесь' }
+    }
+  };
+
+  var I18N_MAP = [
+    { sel:'#dayOfWeekMenu', key:'menu.dayOfWeek', prop:'text' },
+    { sel:'#versionButton', key:'menu.version', prop:'text' },
+    { sel:'#calculatorsMenu', key:'menu.moreCalcs', prop:'text' },
+    { sel:'#astronomyMenu', key:'menu.astronomy', prop:'text' },
+    { sel:'#i18n-section-title', key:'menu.langTitle', prop:'text' },
+    { sel:'#languageMenu', key:'menu.langPick', prop:'text' },
+    { sel:'#dayOfWeekCalculator .header h1', key:'dayOfWeek.h1', prop:'text' },
+    { sel:'#dayOfWeekCalculator .header p', key:'dayOfWeek.p', prop:'text' },
+    { sel:'label[for="dateInput"]', key:'dayOfWeek.label', prop:'text' },
+    { sel:'#dateInput', key:'dayOfWeek.placeholder', prop:'placeholder' },
+    { sel:'#dayOfWeekCalculator .format-hint', key:'dayOfWeek.formats', prop:'text' },
+    { sel:'#calculateBtn', key:'dayOfWeek.calc', prop:'text' },
+    { sel:'#dayOfWeekCalculator .examples h3', key:'dayOfWeek.samples', prop:'text' },
+    { sel:'#installPrompt .prompt-text', key:'install.prompt', prop:'text' },
+    { sel:'#installBtn', key:'install.installBtn', prop:'text' },
+    { sel:'#dismissBtn', key:'install.dismissBtn', prop:'text' },
+    { sel:'#yearFinderCalculator .header h1', key:'yearFinder.h1', prop:'text' },
+    { sel:'#yearFinderCalculator .header p', key:'yearFinder.p', prop:'text' },
+    { sel:'label[for="yearFinderDay"]', key:'yearFinder.day', prop:'text' },
+    { sel:'label[for="yearFinderMonth"]', key:'yearFinder.month', prop:'text' },
+    { sel:'label[for="yearFinderDayOfWeek"]', key:'yearFinder.dow', prop:'text' },
+    { sel:'#yearFinderBtn', key:'yearFinder.btn', prop:'text' },
+    { sel:'#dateMathCalculator .header h1', key:'dateMath.h1', prop:'text' },
+    { sel:'#dateMathCalculator .header p', key:'dateMath.p', prop:'text' },
+    { sel:'label[for="mathType"]', key:'dateMath.type', prop:'text' },
+    { sel:'option[value="add"]', key:'dateMath.addOp', prop:'text' },
+    { sel:'option[value="diff"]', key:'dateMath.diffOp', prop:'text' },
+    { sel:'label[for="mathDate1"]', key:'dateMath.date1', prop:'text' },
+    { sel:'label[for="mathDays"]', key:'dateMath.days', prop:'text' },
+    { sel:'label[for="mathDate2"]', key:'dateMath.date2', prop:'text' },
+    { sel:'label[for="mathDate3"]', key:'dateMath.date3', prop:'text' },
+    { sel:'#dateMathBtn', key:'dateMath.btn', prop:'text' },
+    { sel:'#sunEventsCalculator .header h1', key:'sun.h1', prop:'text' },
+    { sel:'#sunEventsCalculator .header p', key:'sun.p', prop:'text' },
+    { sel:'label[for="sunEventsDate"]', key:'sun.date', prop:'text' },
+    { sel:'label[for="latitude"]', key:'sun.lat', prop:'text' },
+    { sel:'label[for="longitude"]', key:'sun.lon', prop:'text' },
+    { sel:'#sunEventsBtn', key:'sun.btn', prop:'text' },
+    { sel:'#planetCalculator .header h1', key:'planet.h1', prop:'text' },
+    { sel:'#planetCalculator .header p', key:'planet.p', prop:'text' },
+    { sel:'label[for="planetDate"]', key:'planet.date', prop:'text' },
+    { sel:'label[for="planetTime"]', key:'planet.time', prop:'text' },
+    { sel:'label[for="planetTimezone"]', key:'planet.tz', prop:'text' },
+    { sel:'#planetBtn', key:'planet.btn', prop:'text' },
+    { sel:'#eclipsesCalculator .header h1', key:'eclipses.h1', prop:'text' },
+    { sel:'#eclipsesCalculator .header p', key:'eclipses.p', prop:'text' },
+    { sel:'label[for="eclipsesYear"]', key:'eclipses.year', prop:'text' },
+    { sel:'#eclipsesBtn', key:'eclipses.btn', prop:'text' },
+    { sel:'#siderealTimeCalculator .header h1', key:'sidereal.h1', prop:'text' },
+    { sel:'#siderealTimeCalculator .header p', key:'sidereal.p', prop:'text' },
+    { sel:'label[for="siderealDate"]', key:'sidereal.date', prop:'text' },
+    { sel:'label[for="siderealTime"]', key:'sidereal.time', prop:'text' },
+    { sel:'label[for="siderealDST"]', key:'sidereal.dst', prop:'text' },
+    { sel:'label[for="siderealLongitude"]', key:'sidereal.lon', prop:'text' },
+    { sel:'#siderealBtn', key:'sidereal.btn', prop:'text' }
+  ];
+
+  function i18nGet(lang, path, fallback){
+    var obj = I18N[lang] || I18N.cs;
+    var parts = path.split('.');
+    for (var i=0;i<parts.length;i++){ obj = obj && obj[parts[i]]; }
+    return (obj != null ? obj : (fallback != null ? fallback : path));
+  }
+
+  function applyI18n(lang){
+    if (SUPPORTED_LANGS.indexOf(lang) === -1) lang = 'cs';
+    document.documentElement.lang = lang;
+    document.title = i18nGet(lang, 'app.title');
+    I18N_MAP.forEach(function(map){
+      var el = document.querySelector(map.sel);
+      if (!el) return;
+      if (map.prop === 'placeholder') el.setAttribute('placeholder', i18nGet(lang, map.key));
+      else el.textContent = i18nGet(lang, map.key);
+    });
+    var statusEl = document.getElementById('connectionStatus');
+    if (statusEl) statusEl.textContent = (navigator.onLine ? i18nGet(lang,'common.online') : i18nGet(lang,'common.offline'));
+    var displayEl = document.querySelector('#dayOfWeekCalculator #display .display-text');
+    if (displayEl) displayEl.textContent = i18nGet(lang, 'dayOfWeek.resultPlaceholder');
+    var backButtons = document.querySelectorAll('.back-button');
+    for (var i=0;i<backButtons.length;i++){ backButtons[i].textContent = i18nGet(lang, 'common.back'); }
+    // Optional: fill placeholders in inactive views as well
+    function setText(sel, key){ var el = document.querySelector(sel); if (el) el.textContent = i18nGet(lang, key); }
+    setText('#yearFinderDisplay .display-text', 'yearFinder.display');
+    setText('#dateMathDisplay .display-text', 'dateMath.resultPlaceholder');
+    setText('#sunEventsDisplay .display-text', 'sun.resultPlaceholder');
+    setText('#eclipsesDisplay .display-text', 'eclipses.resultPlaceholder');
+    setText('#siderealDisplay .display-text', 'sidereal.resultPlaceholder');
+  }
+
+  function getStoredLang(){ try { return (hasLocalStorage && localStorage.getItem('app-lang')) || null; } catch(e){ return null; } }
+  function setStoredLang(lang){ if (!hasLocalStorage) return; try { localStorage.setItem('app-lang', lang); } catch(e){} }
+  function getInitialLang(){
+    var s = getStoredLang();
+    if (s && SUPPORTED_LANGS.indexOf(s)>-1) return s;
+    var n = (navigator.language || navigator.userLanguage || 'cs').toLowerCase().slice(0,2);
+    return SUPPORTED_LANGS.indexOf(n)>-1 ? n : 'cs';
+  }
+
+  function updateManifestForLang(lang){
+    var link = document.querySelector('link[rel="manifest"]');
+    if (!link) return;
+    var candidate = 'manifest.' + lang + '.json';
+    fetch(candidate, { cache: 'no-store' }).then(function(r){
+      if (r.ok) link.setAttribute('href', candidate);
+      else link.setAttribute('href', 'manifest.json');
+    }).catch(function(){ link.setAttribute('href', 'manifest.json'); });
+  }
+
+  var _showLoading = window.showLoading;
+  window.showLoading = function(){
+    var display = getCurrentDisplay();
+    var lang = getStoredLang() || getInitialLang();
+    if (display){
+      display.className = 'display';
+      display.innerHTML = '<div class="display-text"><span class="loading"></span>' + i18nGet(lang,'common.calculating') + '</div>';
+    }
+    if (typeof _showLoading === 'function') try { _showLoading(); } catch(e){}
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var lang = getInitialLang();
+    applyI18n(lang);
+    updateManifestForLang(lang);
+    var langMenu = document.getElementById('languageMenu');
+    var langSub = document.getElementById('languageSubmenu');
+    if (langMenu && langSub){
+      langMenu.addEventListener('click', function(){ toggleSubmenu('languageSubmenu'); });
+      var items = langSub.querySelectorAll('.menu-item[data-lang]');
+      for (var i=0;i<items.length;i++){
+        items[i].addEventListener('click', function(ev){
+          var newLang = ev.currentTarget.getAttribute('data-lang');
+          setStoredLang(newLang);
+          applyI18n(newLang);
+          updateManifestForLang(newLang);
+          var dd = document.getElementById('menuDropdown');
+          if (dd){ dd.classList.remove('show'); dd.style.display='none'; window.isMenuOpen=false; }
+        });
+      }
+    }
+  });
 })();
 </script>
 </body>
