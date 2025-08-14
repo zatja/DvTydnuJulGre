@@ -1,16 +1,32 @@
-const CACHE_NAME = 'calendar-calculator-v1.4';
+// === v1.5: i18n manifesty v cache ===
+const CACHE_NAME = 'calendar-calculator-v1.5';
+
 const URLS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json',
-    '/',
-    '/index.html',
-    '/manifest.json'
+  './',
+  './index.html',
+  './manifest.json',
+  // i18n manifesty:
+  './manifest.en.json',
+  './manifest.de.json',
+  './manifest.fr.json',
+  './manifest.es.json',
+  './manifest.uk.json',
+  './manifest.ru.json',
+  // (ponecháme i absolutní cesty kvůli různým hostům)
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/manifest.en.json',
+  '/manifest.de.json',
+  '/manifest.fr.json',
+  '/manifest.es.json',
+  '/manifest.uk.json',
+  '/manifest.ru.json'
 ];
 
 // Install event - cache EVERYTHING needed for offline
 self.addEventListener('install', function(event) {
-    console.log('SW: Installing v1.4 - Smart offline mode');
+ console.log('SW: Installing v1.5 - Smart offline mode');
     
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -31,18 +47,23 @@ self.addEventListener('install', function(event) {
                         throw new Error('Failed to fetch main page');
                     })
                     .then(function() {
-                        return fetch('./manifest.json')
-                            .then(function(response) {
-                                if (response.ok) {
-                                    return Promise.all([
-                                        cache.put('./manifest.json', response.clone()),
-                                        cache.put('/manifest.json', response.clone())
-                                    ]);
-                                }
-                            })
-                            .catch(function(error) {
-                                console.log('SW: Manifest caching failed (non-critical):', error);
-                            });
+                        return Promise.all(
+    ['manifest.json','manifest.en.json','manifest.de.json','manifest.fr.json','manifest.es.json','manifest.uk.json','manifest.ru.json']
+    .map(function(name){
+        return fetch('./' + name)
+            .then(function(response){
+                if (response.ok){
+                    return Promise.all([
+                        cache.put('./' + name, response.clone()),
+                        cache.put('/' + name, response.clone())
+                    ]);
+                }
+            })
+            .catch(function(error){
+                console.log('SW: Manifest caching failed (non-critical):', name, error);
+            });
+    })
+);
                     });
             })
             .then(function() {
