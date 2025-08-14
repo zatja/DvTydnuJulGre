@@ -1,0 +1,17 @@
+{
+  "name": "Calendar Calculator - Extended",
+  "short_name": "CalendarCalc",
+  "description": "Comprehensive calendar calculator with astronomy features – full offline.",
+  "start_url": "./",
+  "id": "calendar-calculator",
+  "display": "standalone",
+  "background_color": "#4A4A3A",
+  "theme_color": "#8B7355",
+  "orientation": "portrait",
+  "categories": ["utilities","tools","education","astronomy"],
+  "lang": "en",
+  "icons": [/* stejné jako v manifest.json */],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "scope": "./"
+}
