@@ -1,5 +1,5 @@
 // === v1.5: i18n manifesty v cache ===
-const CACHE_NAME = 'calendar-calculator-v1.5';
+const CACHE_NAME = 'calendar-calculator-v1.4';
 
 const URLS_TO_CACHE = [
   './',
